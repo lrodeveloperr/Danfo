@@ -235,7 +235,7 @@ Ship Android through internal → closed (meeting the 12-tester/14-day gate for 
 
 ### Inferences
 - **Android sequence**:
-  - Weeks 0–2: internal testing (up to 100 testers, instant availability), with CI auto-upload of every `main` build.
+  - Weeks 0–2: internal testing (prior knowledge, not verified this session: up to 100 testers, near-instant availability), with CI auto-upload of every `main` build.
   - Weeks 2–4+: closed testing with 20–30 Nigerian testers for ≥14 consecutive days. Collect private reviews and pre-launch reports, and fix ANRs and crashes on low-RAM devices.
   - Optional: open testing in Nigeria to gather scale signal.
   - Production: staged rollout 5% → 20% → 50% → 100% over about a week, halting if vitals or Sentry show regressions.
