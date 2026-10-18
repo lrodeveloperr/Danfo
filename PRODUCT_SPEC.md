@@ -1,7 +1,7 @@
 # Danfo — product specification
 
 Updated: 18 October 2026  
-Status: implementation handoff; no playable build, performance benchmark or human playtest is included.
+Status: implementation handoff; engine selected (Godot); no playable build, performance benchmark or human playtest is included.
 
 This file defines the current product direction. The full evidence, references and earlier design discussion are in [docs/research-and-design.md](docs/research-and-design.md). If an older proposal in that document conflicts with this specification, this current specification governs. Do not silently change the two modes, menu scope, monetization or approved features.
 
@@ -110,9 +110,61 @@ Use original modular district-specific buildings/frontages/props, compatible var
 
 Use original or appropriately cleared assets, fictional business graphics and a source/licence register. Do not copy proprietary map imagery or 3D assets. OSM-derived data requires the applicable attribution and database obligations.
 
-The researched free-stack recommendation is Godot 4/GDScript, a custom bus controller over the integrated rigid-body/Jolt foundation, Blender, Krita, Audacity and cleared/CC0 materials. Android/iOS export, renderer and ad-plugin integration must be validated and pinned before large content expansion. No new paid tools, packs, commissions, plugins or engine royalties. No measured claim that this stack is optimal or that a phone-performance target has passed.
+The user selected Godot on 18 October 2026, with Blender, Krita, Audacity and cleared/CC0 materials. The zero-new-spend rule stands: no new paid tools, packs, commissions, plugins or engine royalties. Unity 6 was evaluated and is not adopted. The pinned versions are in **Engine and platform baseline** below. No measured claim that this stack is optimal or that a phone-performance target has passed.
 
-Reuse the bus model for menus and driving. Scale meshes/animations/visual detail with distance while keeping gameplay geometry and state consistent. Test modest Android devices and target iPhones over longer sessions. No inherited 5 MB micro-game cap and no unmeasured download-size promise.
+Reuse the bus model for menus and driving. Scale meshes/animations/visual detail with distance while keeping gameplay geometry and state consistent. Test modest Android devices and target iPhones over longer sessions. No inherited 5 MB micro-game cap; the download and memory budgets below are engineering targets to measure, not player-facing promises.
+
+## Engine and platform baseline
+
+Research, sources and reconciled conflicts: [reports/Danfo mobile build and release strategy.md](reports/Danfo%20mobile%20build%20and%20release%20strategy.md). Figures marked [verify] there came from search summaries and must be confirmed on the live official page before they gate a release. These pins are the starting baseline; Phase 0 validates them on devices before content production.
+
+| Layer | Baseline |
+| --- | --- |
+| Engine | Godot 4.7.2-stable with GDScript. Fallback 4.6.3, the oldest release targeting API 36. Re-evaluate at 4.8.1. |
+| Physics | Built-in Jolt. Project-owned RigidBody3D bus controller with shape-cast suspension and piecewise grip curves; VehicleBody3D for prototypes only. Fixed 60 Hz physics with interpolation on every tier. Ghosts record transforms, because Godot physics is not deterministic. |
+| Android rendering | Compatibility renderer (OpenGL ES 3): baked lightmaps, MSAA 2x, blob shadows, a real shadow on the player bus only, MultiMesh for repeated props, material warm-up during loading. A Vulkan Mobile tier waits for Godot 4.8 and soft-launch crash data. |
+| iOS rendering | Mobile renderer on Metal; deployment target iOS 16.0. If matching both renderers' lighting proves costly, use Compatibility on both. |
+| Android packaging | AAB; targetSdk 36, minSdk 24; arm64-v8a and armeabi-v7a; custom size-optimised export templates built with NDK r28+ (16 KB aligned) and debug symbols. |
+| iOS packaging | Xcode 26.2 or later now; Xcode 27/iOS 27 SDK before April 2027. Privacy manifest completed in Godot's export options. |
+| Content delivery | Launch content is install-time. Write a Play Asset Delivery on-demand plugin before a second district ships. No self-hosted downloadable packs. |
+| Ads and consent | Poing Studios godot-admob-plugin v5.1.0: AdMob bidding with five or six mediation partners, Google UMP consent, and on iOS the ATT prompt after the first completed event. Interstitial and rewarded units only. Rewards are granted on the device against a pending-reward record. |
+| Thermal | Small native plugins for Android thermal headroom and iOS thermal state. The quality governor lowers render scale, then shadows/LOD, then ambient density, then frame rate; never the physics rate. |
+| Crash and analytics | Play vitals and Xcode Organizer. Recommended, subject to the telemetry decision below: sentry-godot 2.3.0 and GameAnalytics Godot SDK 3.1.2. Remote config does not move ad pacing beyond the advertising baseline without user approval. |
+| Saves | Atomic local writes with checksum, backup generations and versioned migrations; Android Auto Backup and iOS device backup. No account. |
+| Build and test | GitHub Actions on Linux for import, GUT 9.7.1 tests and Android exports; a macOS lane (Xcode Cloud or Codemagic) for iOS; fastlane 2.241.1 for Play tracks and TestFlight. |
+
+Device tiers and budgets:
+
+- **Floor:** Helio G81/G85 with Mali-G52 MC2 and 3–4 GB RAM (e.g. Galaxy A06, Redmi 14C, Tecno Spark 40 4G, Infinix Hot 60i). 30 fps locked; P95 frame time ≤ 33.3 ms after minute 10 of a 30-minute run; ≤ 150 draw calls; resident memory ≤ 800 MB on 3 GB phones.
+- **Target:** Helio G99/Dimensity 6400 with Mali-G57. 30 fps at higher quality, 60 fps optional.
+- **High:** Mali-G68-class Android and iPhone XR or newer. 60 fps, dropping to 30 under thermal stress.
+- **Below floor:** Unisoc T603/T7250, PowerVR GE8320 and 2–3 GB Android Go phones are excluded in the Play device catalogue at launch and reconsidered after soft-launch vitals.
+- **Size:** first download ≤ 150 MB per device on Play (stretch 100 MB); installed footprint ≤ 400 MB.
+- **Stability:** internal gate of ≤ 0.5% crash rate and ≤ 0.25% ANR rate, with no phone model above 4%.
+
+Store gates:
+
+- Target API 36 (required since 31 August 2026) and Xcode 26 builds (required since 28 April 2026).
+- 16 KB page support before 1 February 2027; iOS 27 SDK from April 2027; target API 37 expected around August 2027 [verify].
+- New personal Play account: a closed test with at least 12 testers opted in for 14 consecutive days before production [verify].
+- Data safety and App Privacy labels declare what the ad and any crash/analytics SDKs collect. A public privacy policy and `app-ads.txt` live on a free GitHub Pages user site.
+- Reward copy describes naira as a fictional in-game currency with no cash value.
+
+Phase 0 exit gates, before content production:
+
+- The floor tier holds the frame budget for 30 minutes on a dense street, with no renderer crashes across the device lab.
+- Test interstitial and rewarded flows with UMP, and ATT on iOS, pass on both platforms.
+- An empty 3D export is measured with and without custom templates, and the per-OS renderer override is confirmed at export.
+- A test crash arrives symbolicated, and an Auto Backup restore of `user://` is verified.
+
+Decisions still open; the engine choice does not authorise them:
+
+- **Store title:** "Danfo" stays the codename. A distinct, trademark-checked title is needed because Danfo Run and earlier danfo games occupy the name.
+- **Compliance additions:** a neutral first-launch age screen that routes ad treatment (with a 13+ Play target audience outside Families), a privacy-options entry, an in-app privacy-policy link and a report-an-ad path. These change the approved menu scope.
+- **Telemetry:** whether to add crash-reporting and analytics SDKs, which need privacy-policy and store-label disclosures.
+- **Save transfer:** whether to offer a cross-platform transfer code.
+- **EU storefronts:** Apple's trader rules require a public address, phone and email; the report recommends excluding the EU at launch unless those are published.
+- **Nigerian data protection:** NDPA/GAID 2025 duties and registration thresholds need a Nigerian lawyer.
 
 ## Advertising — preserve the existing baseline
 
@@ -157,7 +209,7 @@ Acceptance includes:
 - Android/iOS integrated device validation, appropriate visual profiles, audio/subtitle usability and saved controls.
 - Human repeated-session tests for enjoyment, recognition, mastery and reasons to return. Automated validation is not evidence of fun.
 
-Implementation sequence: validate bus feel/onboarding and one connected test district with both modes; integrate persistence/economy/test ads; develop the approved rival/passenger/route/setup/feedback/history features; then expand validated content. This sequence does not authorise removing approved scope.
+Implementation sequence: pass the Phase 0 exit gates; validate bus feel/onboarding and one connected test district with both modes; integrate persistence/economy/test ads; develop the approved rival/passenger/route/setup/feedback/history features; then expand validated content. This sequence does not authorise removing approved scope.
 
-Unresolved values include final city coverage, exact bus references/capacity, tuned handling/economy, final renderer/plugin versions, measured device budgets and tested ad pacing. Label assumptions and unperformed checks accurately.
+Unresolved values include final city coverage, exact bus references/capacity, tuned handling/economy, device validation of the pinned engine/renderer/plugin baseline, measured device budgets and tested ad pacing. Label assumptions and unperformed checks accurately.
 

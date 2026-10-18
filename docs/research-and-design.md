@@ -962,6 +962,8 @@ Maintain feature parity for both core modes. Save earned bus ownership, progress
 
 ## 10. Free production stack and mobile quality
 
+**Engine decision, 18 October 2026:** The user selected Godot and kept the zero-new-spend rule. The pinned baseline in PRODUCT_SPEC.md (Engine and platform baseline) supersedes this section where they differ: the Compatibility renderer is the Android baseline instead of Mobile, launch content is install-time until a Play Asset Delivery plugin exists, the Poing AdMob plugin is pinned at v5.1.0, and builds target API 36. Evidence: [reports/Danfo mobile build and release strategy.md](../reports/Danfo%20mobile%20build%20and%20release%20strategy.md).
+
 **Latest user constraint, 18 October 2026:** Use the best suitable free components and do not require new payments for tools, engines, assets, plugins or production services. This supersedes earlier suggestions that depended on a large paid production budget or commissioned reference collection. Select quality within a zero-new-spend workflow; existing developer-account access is not a reason to add paid production dependencies.
 
 ### Recommended foundation
