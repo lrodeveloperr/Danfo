@@ -5,7 +5,7 @@ A free Android and iOS danfo game set in Lagos, centred on **racing and carrying
 - **Work:** drive a connected city map with normal traffic, visible passenger boarding/drop-offs and a conductor handling fares.
 - **Race:** compete against recurring rival danfos on defined, contact-heavy courses in the same Lagos setting.
 - **One career:** earn naira, pay off a hire-purchase bus, personalise it and keep its history.
-- **Minimal menus:** Work and Race dominate. My Bus and Settings are secondary; accounts and career details expand inside My Bus.
+- **Clear keeps only:** Work and Race dominate. My Bus covers simple setups/customisation and ownership; Settings is secondary. A brief shift account explains the money. Household, paperwork, inbox, report and maintenance-management menus are removed.
 
 ## Start here
 

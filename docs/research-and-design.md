@@ -1,11 +1,13 @@
 # Lagos Danfo Racing — Android and iOS research and product design
 
 **Updated:** 18 October 2026  
-**Revision:** 18 — minimalist menus and GitHub product handoff, with driving as the main activity  
+**Revision:** 19 — approved 80–20 menu cuts: retain only the clear keeps  
 **Scope:** free-to-play Android and iOS danfo game; exactly two initial modes: open-world Work a Route and segmented Race; free production tools/assets with no new paid dependencies or engine royalties; no inherited micro-game size cap.  
 **Status:** sourced research, product specification and implementation handoff. No playable game or device benchmark is included in this handoff.
 
 ## Direction and authority
+
+**Latest approved menu scope, 18 October 2026:** Keep Work and Race, bus selection when relevant, simple upgrades/setups, paint/horn choices, hire-purchase progress, a brief shift account and Settings. Remove family-goal management, owner/mechanic inboxes, paperwork/inspection management, detailed financial reports/history screens, biography/achievement browsers, story-reader menus and routine maintenance micromanagement. These are removals, not deferred or hidden menu features. Preserve the underlying payment ledger, gameplay memories and earned cosmetics. This approval supersedes earlier menu proposals below; the two driving modes, connected passenger map, approved gameplay depth and advertising rules remain.
 
 The player acquires a personal danfo, works towards full ownership where a purchase balance is outstanding, and races rival danfos through Lagos. Aggressive overtaking, traffic decisions, bus personality and a recognisable city are central. The user has agreed that Race and Work a Route are separate modes sharing a bus and career. Passenger work, bus-buying and payment arrangements deepen the ownership experience.
 
@@ -29,10 +31,10 @@ Confirmed user decisions:
 - Help players understand a substantial part of a danfo driver's working life, including the meaning of obtaining and paying for a bus.
 - Naira (₦) as the single earned in-game currency across fares, awards, costs, garage prices and bus agreements.
 - Open-world passenger work on a connected Lagos road network, with segmented competitive races using defined courses in the same setting.
-- A mobile-focused structure: two play modes, Work (passengers) and Race; ownership, maintenance, accounts, personal ambitions and related business/story interactions use supporting menus.
-- Minimalist supporting menus: Work and Race dominate; My Bus contains the relevant ownership, account/history and career details; Settings is a small secondary entry. Driving remains the main activity.
+- A mobile-focused structure: Work (passengers) and Race dominate; a small My Bus screen supports the selected bus, simple setups/customisation and ownership.
+- Clear-keep menus only: My Bus, a concise results breakdown and Settings; no household, inbox, report, biography, paperwork, story-reader or maintenance-management screens.
 
-**Final menu direction, 18 October 2026:** Keep the two driving modes primary and the menus minimal. My Bus is one supporting screen with contextual or expandable details, rather than separate top-level Accounts and Career destinations. Ordinary play never requires a management checklist or reading story cards. The user has authorised uploading this specification/research to the relevant GitHub repository.
+**Final menu direction, 18 October 2026:** Work and Race are primary. My Bus contains only relevant bus selection, simple upgrades/setups, paint/horn choices and a compact ownership summary. Results supply a brief account; Settings remains secondary. There is no Career section, detailed report/history browser, household/inspection task or message collection. The user authorised these clear-keep cuts and the repository update.
 
 **Presentation correction, 18 October 2026:** The user wants the supporting driver-life considerations in menus to reduce the build. This supersedes the dedicated 3D home-base/workshop/owner-interaction proposal. Keep 3D focused on driving, buses, roads, traffic, boarding passengers and appropriate roadside life. The spoken “walk” is understood as Work/passenger mode, alongside Race. The previously confirmed connected passenger-driving map remains; this correction changes the supporting presentation rather than adding a third mode or cancelling the connected map.
 
@@ -145,7 +147,7 @@ Basic racing does not depend on an ad filling, a payment, a fuel timer or a new 
 
 **One personal danfo, one Lagos world, one ownership career, two ways to play.** The bus and the player's ambitions connect the game; individual modes supply different immediate pleasures.
 
-The main menu shows the selected bus, naira balance, one chosen next goal/ownership indicator and two dominant play buttons: **Work** (passengers) and **Race**. **My Bus** and a small **Settings** entry are secondary. Account/history and career details are contextual or expandable sections inside My Bus, not extra top-level destinations or modes. The Lagos map is a connected driving space for passenger work; selected competitive races use defined courses within that same setting. Job/course selection occurs through clear menus without requiring a physical visit to a 3D hub.
+The main menu shows the selected bus, naira balance, ownership progress and two dominant play buttons: **Work** (passengers) and **Race**. **My Bus** and **Settings** are small secondary entries. My Bus offers relevant bus selection, simple setups/upgrades, paint/horn choices and a short ownership summary. Results show a brief financial breakdown; detailed reports, history/story browsers and management tasks are removed. Work uses connected city streets; Race uses defined courses in the same setting.
 
 The proposed full loop:
 1. **Choose a goal:** make the next instalment, improve the bus, unlock a district or earn a chosen appearance.
@@ -334,22 +336,22 @@ A 2025 Alimosho study's author abstract identifies fuel use, running costs, oper
 
 #### Further incorporation proposals
 
-The user has confirmed the working-life objective and naira currency. The following details are researched recommendations, rather than approval to introduce compulsory new deductions, maintenance chores, extra modes or monetization changes.
+The user confirmed the working-life objective and naira currency. The inventory below is research context; the latest clear-keep menu scope above controls implementation. Excluded household, paperwork, inbox, story-reader and maintenance-management features are not an approved backlog. No new compulsory deduction or ad change follows from this inventory.
 
 | Working-life detail | How it can appear in the existing game | What a player would understand |
 | --- | --- | --- |
 | Actual take-home earnings | A short end-of-shift account showing fares, disclosed operating costs, the appropriate owner payment and retained money | Cash collected is gross revenue; the driver's retained amount comes after obligations |
 | Driver–conductor partnership | Persistent named conductor, destination calls, capacity coordination, brief change/fare exchanges and an explained pay arrangement | The conductor supplies skilled labour and is part of the business, not just comic commentary |
 | Bus-park organisation | Loading areas on driving routes, recognised calls and relevant park-cost/route information in menus/results | Passenger work depends on places, people and operating arrangements as well as road speed |
-| Fuel and upkeep | Disclosed work-shift costs and concise My Bus service options/explanations of tyres, brakes and engine upkeep | Route distance, congestion and vehicle condition affect a working vehicle's economics |
+| Fuel and upkeep | Applicable disclosed costs in the short shift account; meaningful upgrades/setups in My Bus | Vehicle operation has costs, without servicing chores |
 | Waiting for passengers versus departing | A compressed loading decision with visible seats and demand information | A fuller bus can earn more per departure, while waiting reduces time for further trips |
 | Demand by time and direction | Authored morning/evening jobs, uneven outward/return demand and clearly announced fare conditions | Route knowledge includes where customers are going and when they travel |
 | Change and everyday fare friction | Short conductor-led exchanges, readable agreed fares and occasional exact-change dialogue | Small transactions require coordination; the driver need not perform a separate cashier minigame |
 | Variable daily pressure | An achievable played-shift earnings goal, with a clear distinction between hire-purchase instalments and ordinary rental remittance | Different agreements change what must be paid and whether ownership is being earned |
-| Personal and household ambitions | Optional Career cards/goals, such as putting savings aside, helping family or improving the bus | The person driving has a life and aspirations beyond the road |
+| Personal and household ambitions | Background character context only; no household goals or Career menu | Drivers have individual lives without adding management tasks |
 | Community and trust | Returning a passenger's lost item, receiving practical advice, or a short reciprocal-help story | Reliability, local relationships and cooperation are part of the working world |
-| Rest and the day's rhythm | Brief Career text and selected morning/evening jobs, without separate breakfast/rest locations | Long workdays include human routines; no hunger/fatigue meter or real-time waiting is required |
-| Identity and paperwork | My Bus nickname/slogans, selected decoration and concise document/inspection information after reference checking | The bus expresses an individual identity and operates within a wider transport system |
+| Rest and the day's rhythm | Selected morning/evening jobs and roadside ambience | A working-day rhythm without rest/needs management |
+| Identity and paperwork | Bus identity stays in simple customisation; paperwork/inspection management is excluded | Preserve identity without an administrative menu |
 
 A first-person 2022 passenger account describes loading, calls, change concerns and distinctions between park payments and additional roadside demands. Treat it as one observer's journey; do not reproduce its stereotypes or political allegations as general fact. [S71]
 
@@ -361,34 +363,30 @@ Any new cost mechanism needs an explicit economy decision, previewed rules and t
 
 Authenticity can use short contextual scenes and decisions instead of adding full maintenance, household or conductor modes. Compress loading/traffic time without erasing its consequences. Keep normal fare handling automatic and core play immediately accessible; there is no fuel-energy paywall or new ad placement. Historical reports of coercive collections can inform carefully labelled fictional stories without presenting every fee as legitimate tax or every official as corrupt. Any present-day legal/fee details require current primary checking before inclusion.
 
-The daily rhythm is menu job selection, work the route with the conductor and visible passengers, make useful demand/seat decisions, settle the completed shift, then choose a My Bus/Career action, another shift or a race. It requires no separate 3D hub visit or long routine before each race. Real-world absence does not create new arrears, household penalties or lost ownership.
+The daily rhythm is menu job selection, work the route with the conductor and visible passengers, make useful demand/seat decisions, settle the completed shift, then make a relevant My Bus choice, another shift or a race. It requires no separate 3D hub visit or long routine before each race. Real-world absence does not create new arrears, household penalties or lost ownership.
 
-#### Coherent mobile structure: driving in 3D, driver life in menus
+#### Coherent mobile structure: clear keeps only
 
-**Confirmed presentation:** The main menu has two primary play buttons, **Work** (passengers) and **Race**. Business and personal-life functions use concise supporting screens. A garage label denotes the My Bus menu and reused bus preview, not a separate 3D workshop or traversable home base.
+The user approved the 80–20 menu cuts on 18 October 2026. This section supersedes earlier menu/story/management proposals. Driving remains the main activity.
 
-| Screen or mode | What appears | Player action and consequence |
-| --- | --- | --- |
-| Main menu | Selected bus preview, naira balance, chosen goal and ownership progress | Start Work or Race; open supporting screens |
-| Work selection | Map/route cards, destinations, duration/demand cues and disclosed terms | Select the passenger job and enter/resume the connected driving map |
-| Work in 3D | Bus, visible driver/conductor/passengers, normal traffic, streets and boarding areas | Drive, choose viable streets, board/alight passengers and complete journeys |
-| Race selection and driving | Course/event cards, followed by a defined 3D race with rival buses | Select an event/setup, race, finish and optionally rematch |
-| Results / Accounts | Saved earnings, applicable expenses, conductor/park costs where selected, owner payments and retained naira | Understand the completed event and ownership balance; use the existing Next/Replay/menu choices |
-| My Bus | Existing bus model in a simple preview; appearance, setup, service and contract options | Preview/confirm eligible earned-currency choices and see their effect on the next drive |
-| Career | Rival/passenger memories, owner/mechanic messages, personal goals, bus history and earned milestones | Read a brief optional card, choose a relevant action and continue driving |
-| Settings | Control, audio, subtitle and camera-comfort choices | Adjust preferences and retain them across sessions |
+| Surface | Keep |
+| --- | --- |
+| Main menu | Selected bus, naira balance, ownership progress, dominant **Work** and **Race** buttons; small **My Bus** and **Settings** entries |
+| Work selection | A concise service-route card with destinations, duration/demand cues and any applicable disclosed terms; Start/Resume |
+| Race selection | A concise course/event card and current setup; Start/Rematch |
+| Results | Saved earnings, applicable expenses, owner payment, take-home amount and ownership progress; Next/Replay/My Bus |
+| My Bus | Selected bus, simple upgrades/named setups, paint/horn choices and compact ownership summary; bus selection when multiple buses are available |
+| Settings | Controls, sound, subtitles and camera comfort |
 
-The extra screens are not extra game modes. Keep ordinary access direct: opening the app presents the two play choices, not a compulsory business checklist. Menu panels can use short text, simple icons and original/cleared lightweight portraits where useful; reuse the same bus asset for preview and driving rather than creating an elaborate garage environment.
+Use one concise result breakdown to explain the driver's money. My Bus may expose a short agreement summary through Details; it does not contain detailed financial reports, transaction-history screens or a Career section. Preserve the underlying payment ledger and gameplay history internally for correct saves and ownership.
 
-Hire purchase appears as the agreement, remaining naira balance, instalment history and a final ownership card. Conductor pay, relevant park costs, fuel and upkeep appear in the disclosed shift account or My Bus screen. Any cost system remains subject to the existing economy decisions; moving it to a menu does not silently activate a new deduction. Personal ambitions and family/community stories appear as short Career messages and choices, while familiar passengers and rival tactics remain visible through the existing driving characters.
+Remove family/household goals, owner/mechanic inboxes or message collections, paperwork/inspection management, biography/achievement browsers, story-reader menus and routine maintenance micromanagement. Do not reintroduce them as hidden expandable features. Brief ownership milestones can appear when earned; rivals and regular passengers establish their character during driving and stops.
 
-Keep passenger boarding/alighting, occupied seats, the conductor and drivers in the 3D modes. Roadside bus parks can remain part of the city/stop environment where needed for actual passenger work. Remove the dedicated 3D owner, mechanic, family home, breakfast/rest area, walkable hub and separate transaction/cinematic scenes from the required production scope. Their information and consequences are delivered through menus. The approved visible bus history can use the existing cabin/preview plus history cards; it does not require a new room.
+Keep a few meaningful upgrade/setup choices instead of advanced tuning dashboards. No per-run repair/service checklist or repeated manual instalment confirmation. Apply the already disclosed played-shift rules automatically; this UI change adds no new cost or loan term. Existing earned/rewarded cosmetic items and entitlements remain supported with a compact preview/appearance choice; no ad placement or reward changes are authorised by these cuts.
 
-The latest correction retains the connected map for passenger driving and the defined-course structure for racing. It reduces ancillary environments and animations; it does not require removing street connectivity, passenger models or the approved seven gameplay additions. No exact package-size or performance saving is claimed until the actual build is measured.
+The ordinary loop is choose Work or Race, drive, receive a saved result, optionally make one useful bus choice, then drive again. No management step or story reading is required before another drive.
 
-One shared saved state drives both menus and 3D presentation: bus identity/setup, naira, contracts, passengers, rivals and story flags. Confirming a menu action applies its effect once; backing out of a preview restores the prior setup. Results reflect completed gameplay, while ordinary menu visits do not complete shifts, create money or trigger automatic ads. The existing ad placements and spacing remain unchanged.
-
-The loop is: choose Work or Race in the menu, drive in 3D, receive a saved result, optionally make a relevant menu decision, then drive again. This carries the driver's working-life context through the game while keeping its mobile controls and production scope focused.
+Passenger boarding/alighting, occupied seats, drivers, conductor calls, regular-customer recognition and rival tactics remain in the 3D driving modes. The garage is the My Bus menu with the reused bus preview. No dedicated 3D owner, mechanic, home, workshop interior, rest area or walkable headquarters is required. The menu cuts preserve the approved connected Work map and defined Race courses.
 
 Documented transport work includes coordination, economic pressure, language, maintenance, individual identity and relations around parks. Academic work supports treating this as a social system, rather than attributing all behavior to a national personality. [S27–S32]
 
@@ -433,7 +431,7 @@ The My Bus/garage menu supports:
 - Body panels, paint, original slogans, decals, wheels and cabin appearance.
 - A set of researched engine/horn identities.
 - Clear mechanical upgrades and sidegrades earned through races.
-- Before/after inspection, vehicle history and favourite setups.
+- A few named setups and brief ownership/earned-identity feedback, without inspection tasks or a history/achievement browser.
 - Distinctive buses without making expensive variants compulsory for fair competition.
 - Presets for players who enjoy racing more than editing.
 
@@ -481,7 +479,7 @@ The second-bus path can later let the player hire a fictional driver and experie
 - Make a well-maintained bus, a decorated bus and a deliberately weathered bus valid expressions.
 - Let full ownership improve the character's take-home position because the purchase instalment ends.
 - Keep the first bus relevant after it is fully paid for.
-- Present a voluntary extra payment as a choice between clearing the balance sooner and another use of earned currency.
+- Apply the disclosed played-shift instalment and show ownership progress without a separate manual-payment task.
 
 The “working day” advances through gameplay. Missing real-world days does not create arrears while the app is closed. There is no real-time interest or surprise increase to the agreed total in the proposed baseline.
 
@@ -1166,7 +1164,7 @@ These are proposed checks to include in the later build contract.
 ### Mobile menu structure
 
 - The main menu exposes Work (passengers) and Race as its only primary play modes.
-- My Bus and Settings are secondary entries; accounts/history and career details are contextual or expandable within My Bus. No required 3D hub, owner, mechanic or household scenes are added.
+- My Bus and Settings are secondary. My Bus contains only bus selection when relevant, simple upgrades/setups, paint/horns and ownership progress; results show a brief account. No Career/inbox/report/history browser, paperwork/inspection task or routine servicing flow appears.
 - Core drivers, conductor, passengers and boarding remain visible in the driving modes.
 - Menu actions preserve ownership/history and affect the correct bus exactly once.
 - Moving business interactions into menus preserves connected passenger driving and defined-course racing.

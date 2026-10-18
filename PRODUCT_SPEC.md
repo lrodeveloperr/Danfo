@@ -11,19 +11,26 @@ Drive a personal danfo through Lagos, earn naira through racing or carrying pass
 
 Android and iOS; free entry; advertising-funded; local-first solo play. One shared bus/career, one earned currency in naira (₦), exactly two play modes: **Work** and **Race**.
 
-## Minimal menus
+## Minimal menus — clear keeps only
 
-Driving is the main activity. The main menu shows the selected bus, naira balance, one next-goal/ownership indicator, and two dominant buttons: **Work** and **Race**. **My Bus** and a small **Settings** entry are secondary.
+The user approved the 80–20 menu cuts on 18 October 2026. This section supersedes earlier menu/story/management proposals. Driving remains the main activity.
 
-- Work selection shows the current/recommended service job, with expandable destination, duration, demand and disclosed-cost information.
-- Race selection shows the current/recommended event, course, rivals and setup.
-- Results show saved earnings/take-home amount, ownership progress and Next/Replay/My Bus. A concise expandable breakdown explains applicable expenses.
-- My Bus contains selection, appearance/setup, contract and the relevant next goal. Detailed accounts/history, career records, personal stories and achievements expand only when requested.
-- Settings covers controls, camera comfort, audio and subtitles.
+| Surface | Keep |
+| --- | --- |
+| Main menu | Selected bus, naira balance, ownership progress, dominant **Work** and **Race** buttons; small **My Bus** and **Settings** entries |
+| Work selection | A concise service-route card with destinations, duration/demand cues and any applicable disclosed terms; Start/Resume |
+| Race selection | A concise course/event card and current setup; Start/Rematch |
+| Results | Saved earnings, applicable expenses, owner payment, take-home amount and ownership progress; Next/Replay/My Bus |
+| My Bus | Selected bus, simple upgrades/named setups, paint/horn choices and compact ownership summary; bus selection when multiple buses are available |
+| Settings | Controls, sound, subtitles and camera comfort |
 
-No separate top-level Accounts or Career destination, management checklist, mandatory story reading or required maintenance inspection before each drive. Preserve the approved systems while presenting their relevant information briefly.
+Use one concise result breakdown to explain the driver's money. My Bus may expose a short agreement summary through Details; it does not contain detailed financial reports, transaction-history screens or a Career section. Preserve the underlying payment ledger and gameplay history internally for correct saves and ownership.
 
-The ordinary loop is: choose Work or Race, drive, see a saved result, optionally make one relevant My Bus choice, then drive again.
+Remove family/household goals, owner/mechanic inboxes or message collections, paperwork/inspection management, biography/achievement browsers, story-reader menus and routine maintenance micromanagement. Do not reintroduce them as hidden expandable features. Brief ownership milestones can appear when earned; rivals and regular passengers establish their character during driving and stops.
+
+Keep a few meaningful upgrade/setup choices instead of advanced tuning dashboards. No per-run repair/service checklist or repeated manual instalment confirmation. Apply the already disclosed played-shift rules automatically; this UI change adds no new cost or loan term. Existing earned/rewarded cosmetic items and entitlements remain supported with a compact preview/appearance choice; no ad placement or reward changes are authorised by these cuts.
+
+The ordinary loop is choose Work or Race, drive, receive a saved result, optionally make one useful bus choice, then drive again. No management step or story reading is required before another drive.
 
 ## Work — passenger driving
 
@@ -79,19 +86,19 @@ All seven additions below are included. Priority determines implementation order
 4. **Informed work decisions:** job previews and useful demand cues; optional pickups trade available seats/time against later demand. Cues are authored game forecasts, not a live city-data claim.
 5. **Viable bus setups:** clear trade-offs such as acceleration, steady cornering and forgiving braking. Offer a free preview on an existing Race route before committing earned currency; restore the old setup when cancelling. This is neither another mode nor an ad offer.
 6. **Improvement feedback:** optional personal ghost plus one concise actionable post-race observation based on real sector/checkpoint timings. Compare compatible route/course, class, setup, conditions and physics versions; distinguish acquired skill from stronger upgrades.
-7. **Visible bus history:** ownership handover, route/service milestones and selected achievements remain attached to the same bus. Use history cards and earned original plates/mementos in the existing preview/cabin. Preserve them through customisation, updates and later bus acquisition.
+7. **Visible bus history:** preserve ownership and selected race/service milestones on the same bus, with brief milestone feedback and earned original plates/mementos in the existing preview/cabin. Keep the underlying records through customisation, updates and later bus acquisition; no history-card collection or achievement browser is required.
 
 ## Bus ownership and driver life
 
-Start with control of a clearly disclosed hire-purchase bus, with the initial deposit already saved in the character's story. Show total agreed price, deposit, payments, remaining balance and transfer to full ownership.
+Start with control of a clearly disclosed hire-purchase bus, with the initial deposit already saved in the character's story. Keep a short agreement summary, the current payment/remaining balance and progress towards full ownership.
 
 Hire-purchase instalments reduce the purchase balance. An ordinary rental/delivery remittance buys continued use of someone else's bus and does not automatically earn ownership. Keep fuel, conductor pay, park/upkeep costs and owner payments distinct. Do not apply rental and purchase obligations as though they were universally the same contract.
 
-The paid-off bus remains owned and usable. Its instalment obligation ends permanently. Real-world absence creates no arrears, interest, confiscation or lost ownership. Voluntary extra payments can compete with another chosen use of earned money.
+The paid-off bus remains owned and usable. Its instalment obligation ends permanently. Real-world absence creates no arrears, interest, confiscation or lost ownership. Apply disclosed played-shift instalments without a separate manual-payment task.
 
 Show applicable disclosed expenses and take-home earnings briefly in results, with details available in My Bus. New compulsory deductions and exact economy values remain decisions to settle explicitly before implementation. Do not copy historical interview prices as current real-world prices.
 
-Owner/mechanic messages, family ambitions, paperwork/context and personal goals use short optional menu cards. Keep the conductor as a skilled driving partner, regular customers as individuals, and community/trust stories alongside economic pressure. Racing prize income is a fictional game interpretation rather than a claim about ordinary danfo finance.
+Keep the conductor as a skilled driving partner and regular customers as individuals within the driving experience. The shift account and ownership progress supply the core working-life context. Household goals, paperwork tasks and owner/mechanic story menus are removed. Racing prize income is a fictional game interpretation rather than a claim about ordinary danfo finance.
 
 No dedicated 3D owner, mechanic, house, workshop interior, breakfast/rest area, walkable headquarters or transaction cinematic is required. Roadside stop/park geometry and normal driving characters remain.
 
