@@ -37,7 +37,7 @@ const ROUTES := {
 		"label": "Garage – Market – Under Bridge",
 		"description": "Busy loop through the market side of the district.",
 		"stops": ["Garage", "Market Junction", "Filling Station", "Under Bridge", "Church Gate", "Mechanic Village"],
-		"journeys_target": 12,
+		"journeys_target": 10,
 		"duration_hint": "about 6 min",
 		"demand": "High at the market, steady elsewhere",
 	},

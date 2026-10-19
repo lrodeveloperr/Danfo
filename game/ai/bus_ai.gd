@@ -14,10 +14,14 @@ var defend := 0.0 # 0..1, tendency to drift into the line of a bus behind
 var max_speed := 24.0
 ## Optional stop point: the AI slows to a halt here (used by Work autopilot).
 var stop_point: Variant = null
+## When true the AI releases the controls and lets the bus hold still.
+var hold := false
 
 var _index := 0
 var _stuck_time := 0.0
 var _reverse_time := 0.0
+var _best_index := 0
+var _no_progress := 0.0
 var _avoid := 0.0
 var _space: PhysicsDirectSpaceState3D
 
@@ -42,6 +46,8 @@ func set_path(path: PackedVector3Array, closed: bool, start_near := Vector3.INF)
 	_index = 0
 	if start_near != Vector3.INF:
 		_index = _closest_index(start_near, 0, points.size())
+	_best_index = _index
+	_no_progress = 0.0
 
 
 func at_end() -> bool:
@@ -49,8 +55,8 @@ func at_end() -> bool:
 
 
 func drive_input(bus: Bus) -> Dictionary:
-	if points.size() < 2:
-		return {"throttle": 0.0, "brake": 1.0, "steer": 0.0}
+	if hold or points.size() < 2:
+		return {"throttle": 0.0, "brake": 0.0, "steer": 0.0}
 	_space = bus.get_world_3d().direct_space_state
 	var pos := bus.global_position
 	_index = _closest_index(pos, _index, 24)
@@ -68,11 +74,13 @@ func drive_input(bus: Bus) -> Dictionary:
 
 	var horizon := 12.0 + absf(bus.speed) * lerpf(1.7, 1.0, brake_late)
 	var turn := _upcoming_turn(horizon)
-	var corner_speed := lerpf(max_speed, 7.0, clampf(turn / (PI * 0.5), 0.0, 1.0)) * corner_factor
+	var corner_speed := lerpf(max_speed, 6.0, clampf(turn / (PI * 0.5), 0.0, 1.0)) * corner_factor
 	var target_speed := minf(max_speed * speed_factor, corner_speed)
 	if stop_point != null:
 		var d := pos.distance_to(stop_point)
-		target_speed = minf(target_speed, sqrt(maxf(d - 1.0, 0.0) * 5.0))
+		target_speed = minf(target_speed, sqrt(maxf(d - 1.5, 0.0) * 4.0))
+		if d < 2.5:
+			target_speed = 0.0
 	if not loop and _index >= points.size() - 3 and stop_point == null:
 		target_speed = 0.0
 
@@ -83,19 +91,31 @@ func drive_input(bus: Bus) -> Dictionary:
 		throttle = 0.0
 		brake = 0.0 # hold still without reversing
 
-	# Unstick: back up briefly, then fall back to recovery.
+	var dt := bus.get_physics_process_delta_time()
+	# Overshot a turn: back up with opposite lock (a three-point turn).
+	if absf(angle) > 1.9 and absf(bus.speed) < 3.0 and target_speed > 0.5:
+		return {"throttle": 0.0, "brake": 1.0, "steer": -signf(angle)}
+	# Unstick: back up briefly when pushing against something.
 	if _reverse_time > 0.0:
-		_reverse_time -= bus.get_physics_process_delta_time()
+		_reverse_time -= dt
 		return {"throttle": 0.0, "brake": 1.0, "steer": -steer}
 	if throttle > 0.3 and absf(bus.speed) < 0.7:
-		_stuck_time += bus.get_physics_process_delta_time()
-		if _stuck_time > 7.0:
+		_stuck_time += dt
+		if _stuck_time > 1.6:
 			_stuck_time = 0.0
-			bus.place_at(points[_index], Basis.looking_at(dir, Vector3.UP))
-		elif fmod(_stuck_time, 3.0) > 1.6 and _reverse_time <= 0.0:
-			_reverse_time = 1.1
+			_reverse_time = 1.2
 	else:
-		_stuck_time = maxf(_stuck_time - bus.get_physics_process_delta_time(), 0.0)
+		_stuck_time = maxf(_stuck_time - dt, 0.0)
+	# Last resort: no progress along the path for a while, so recover onto it.
+	var progressed := _index > _best_index or (loop and _index < _best_index - points.size() / 2)
+	if progressed:
+		_best_index = _index
+		_no_progress = 0.0
+	elif target_speed > 0.5:
+		_no_progress += dt
+		if _no_progress > 8.0:
+			_no_progress = 0.0
+			bus.place_at(points[_index], Basis.looking_at(dir, Vector3.UP))
 	return {"throttle": throttle, "brake": brake, "steer": steer}
 
 

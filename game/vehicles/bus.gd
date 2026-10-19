@@ -167,6 +167,8 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	grounded_wheels = 0
 
 	var reversing := brake > 0.1 and throttle < 0.05 and speed < 1.0
+	# Auto-hold: a nearly stopped bus with no input stays put (like a handbrake).
+	var holding := throttle < 0.05 and brake < 0.05 and absf(speed) < 0.6
 	var drive := 0.0
 	if reversing:
 		drive = -brake * reverse_force * clampf(1.0 + speed / 6.0, 0.0, 1.0)
@@ -215,9 +217,10 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		var f_long := 0.0
 		if not is_front:
 			f_long += drive * 0.5
-		if brake > 0.0 and not reversing:
+		if (brake > 0.0 and not reversing) or holding:
 			var stop_force := -v_long * corner_mass / dt
-			f_long += clampf(stop_force, -brake * brake_force * 0.25, brake * brake_force * 0.25)
+			var limit := brake_force * 0.25 * (1.0 if holding else brake)
+			f_long += clampf(stop_force, -limit, limit)
 		f_long -= v_long * 6.0 # rolling resistance
 
 		var combined := Vector2(f_lat, f_long)
