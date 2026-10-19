@@ -132,7 +132,7 @@ User direction, 19 October 2026: every graphical detail is best in class, and gr
   - Poly Haven and ambientCG CC0 assets.
   - No purchased models.
 
-Reuse the bus model for menus and driving. Scale meshes/animations/visual detail with distance while keeping gameplay geometry and state consistent. Test modest Android devices and target iPhones over longer sessions. No inherited 5 MB micro-game cap; the download and memory budgets below are engineering targets to measure, not player-facing promises.
+Reuse the bus model for menus and driving. Scale meshes/animations/visual detail with distance while keeping gameplay geometry and state consistent. Test modest Android devices and target iPhones over longer sessions. No inherited 5 MB micro-game cap and no download-size target: graphics quality decides the size (user direction, 19 October 2026). The memory budgets below are engineering targets to measure, not player-facing promises.
 
 ## Engine and platform baseline
 
@@ -149,7 +149,7 @@ Research, sources and reconciled conflicts: [reports/Danfo mobile build and rele
 | Rendering: all tiers | One set of source assets, with detail levels and distant stand-ins generated from it. Tier chosen automatically on first launch, with a manual override in Settings. iOS deployment target 16.0. |
 | Android packaging | AAB; targetSdk 36, minSdk 24; arm64-v8a and armeabi-v7a; custom size-optimised export templates built with NDK r28+ (16 KB aligned) and debug symbols. |
 | iOS packaging | Xcode 26.2 or later now; Xcode 27/iOS 27 SDK before April 2027. Privacy manifest completed in Godot's export options. |
-| Content delivery | The first download carries the game with Low/Mid assets. High and Ultra texture and audio packs download after install, through Play Asset Delivery on Android (a small Godot plugin is needed before launch) and Apple-hosted Background Assets on iOS (iOS 26 or later; older iPhones keep the Mid assets). They download on Wi-Fi by default, show their size, and can be removed. No self-hosted downloadable packs. |
+| Content delivery | Content beyond the stores' build limits ships as Play asset packs on Android (a small Godot plugin is needed before launch) and Apple-hosted Background Assets on iOS 26 or later; older iPhones get what fits in the 4 GB app. Packs for the phone's tier download automatically right after install. No self-hosted downloadable packs. |
 | Ads and consent | Poing Studios godot-admob-plugin v5.1.0: AdMob bidding with five or six mediation partners, Google UMP consent, and on iOS the ATT prompt after the first completed event. Interstitial and rewarded units only. Rewards are granted on the device against a pending-reward record. |
 | Thermal | Small native plugins for Android thermal headroom and iOS thermal state. The quality governor lowers render scale, then shadows/LOD, then ambient density, then frame rate; never the physics rate. |
 | Crash and analytics | Play vitals and Xcode Organizer. Recommended, subject to the telemetry decision below: sentry-godot 2.3.0 and GameAnalytics Godot SDK 3.1.2. Remote config does not move ad pacing beyond the advertising baseline without user approval. |
@@ -163,7 +163,7 @@ Device tiers and budgets:
 - **High:** Mali-G68-class Android and newer, and iPhone XR or newer. Full-quality assets and effects. 60 fps where sustainable, dropping to 30 under thermal stress.
 - **Ultra:** the newest iPhones and flagship Android, adding Forward+ effects only if device tests show they hold.
 - **Below floor:** Unisoc T603/T7250, PowerVR GE8320 and 2–3 GB Android Go phones are excluded in the Play device catalogue at launch and reconsidered after soft-launch vitals.
-- **Size:** first download ≤ 150 MB per device on Play (stretch 100 MB), because mobile data costs Nigerian players about ₦58 per 100 MB. Installed footprint ≤ 400 MB on Low/Mid. High and Ultra packs add what full-quality assets need (expected 1–2 GB), downloaded optionally after install.
+- **Size:** no download-size or data-cost target; assets are not cut down to save download size. Only the stores' hard limits apply: Play's 200 MB base download, with everything larger in asset packs; iOS's 4 GB uncompressed app; and 200 GB of Apple-hosted asset packs per app. Phone memory (RAM) budgets above still apply.
 - **Stability:** internal gate of ≤ 0.5% crash rate and ≤ 0.25% ANR rate, with no phone model above 4%.
 
 Store gates:
