@@ -12,6 +12,7 @@ A free Android and iOS danfo game set in Lagos, centred on **racing and carrying
 1. [PRODUCT_SPEC.md](PRODUCT_SPEC.md) — current product requirements and implementation boundaries.
 2. [docs/research-and-design.md](docs/research-and-design.md) — full research, sources, evidence limits and earlier design discussion.
 3. [reports/Danfo mobile build and release strategy.md](reports/Danfo%20mobile%20build%20and%20release%20strategy.md) — engine, devices, ads/consent, store compliance, pipeline and release research behind the Godot baseline.
+4. [docs/photo-reference-list.md](docs/photo-reference-list.md) — every photo needed from Lagos to make the game look like Lagos, how to shoot it and where it goes (`art/reference/`).
 
 The current product specification governs implementation when an earlier research proposal differs. Exactly two modes, all seven approved gameplay additions, free production components and the existing advertising baseline are retained. Material monetization changes require user approval.
 
