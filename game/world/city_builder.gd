@@ -392,18 +392,25 @@ func _build_garage(st: SurfaceTool, body: StaticBody3D, c: Vector3, inner: float
 		for k in ribs:
 			MeshKit.box(st, shed + Vector3(0, 3.45, -26.0 + k * (52.0 / ribs)), Vector3(7.0, 0.1, 52.0 / ribs + 0.02), RUST[k % RUST.size()])
 		add_box_collider(body, shed + Vector3(0, 1.7, 0), Vector3(0.4, 3.4, 50.0))
-	var paints := Content.PAINTS.keys()
-	var slogans := ["GOD DEY", "", "NO FOOD FOR LAZY MAN", "", "SURU LERE", "", ""]
-	for i in 7:
-		var parked := BusVisual.new()
-		add_child(parked)
-		parked.build("classic14", paints[i % paints.size()], slogans[i], rng.randf_range(0.35, 0.95), rng.randi())
-		var row := i % 3
-		parked.position = c + Vector3(-inner * 0.5 + 12.0 + row * 24.0, 0.15 - BusVisual.GROUND_Y, -20.0 + (i / 3) * 14.0 + rng.randf_range(-1.5, 1.5))
-		parked.rotation.y = rng.randf_range(-0.15, 0.15)
-		parked.park_wheels()
-		add_box_collider(body, parked.position + Vector3(0, 0.6, 0), Vector3(1.9, 1.6, 4.6), Basis(Vector3.UP, parked.rotation.y))
-		dressing.add_crowd_point(parked.position + Vector3(1.6, -0.36, rng.randf_range(-1, 1)), rng.randf() < 0.3)
+	# Rows of danfos loading in their bays, merged into the block mesh.
+	for row in 3:
+		for slot in 14:
+			if rng.randf() < 0.15:
+				continue
+			var x := -inner * 0.5 + 16.0 + row * 24.0 + rng.randf_range(-0.6, 0.6)
+			var z := -inner * 0.5 + 6.0 + slot * 6.0 + rng.randf_range(-0.4, 0.4)
+			var pos := c + Vector3(x, 0.15, z)
+			var yaw := PI * 0.5 + rng.randf_range(-0.12, 0.12)
+			var vst := MeshKit.begin()
+			var size := Traffic.vehicle_mesh(vst, "danfo", Color.WHITE, rng)
+			st.append_from(vst.commit(), 0, Transform3D(Basis(Vector3.UP, yaw), pos))
+			add_box_collider(body, pos + Vector3(0, size.y * 0.5, 0), size, Basis(Vector3.UP, yaw))
+			for k in rng.randi_range(0, 3):
+				dressing.add_crowd_point(pos + Vector3(rng.randf_range(-2.5, 2.5), -0.15, 1.6 + rng.randf_range(0.0, 1.0)), rng.randf() < 0.35)
+	for k in 10:
+		var spot := c + Vector3(rng.randf_range(-inner * 0.45, inner * 0.45), 0.15, rng.randf_range(-inner * 0.45, inner * 0.45))
+		MeshKit.umbrella(st, spot, 1.4, 2.1, AWNINGS[rng.randi() % AWNINGS.size()], Color(0.95, 0.95, 0.92))
+		dressing.add_crowd_point(spot - Vector3(0, 0.15, 0) + Vector3(0.6, 0, 0), rng.randf() < 0.4)
 
 
 func _build_market(st: SurfaceTool, body: StaticBody3D, c: Vector3, inner: float) -> void:

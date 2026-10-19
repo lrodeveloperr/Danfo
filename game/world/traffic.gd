@@ -12,6 +12,13 @@ const CAR_COLORS := [
 
 var layout: DistrictLayout
 var vehicles: Array[TrafficVehicle] = []
+## Traffic is kept dense around this node (the player's bus): vehicles that
+## drift far away are recycled onto roads nearby, out of the way.
+var focus: Node3D
+const BUBBLE_NEAR := 60.0
+const BUBBLE_FAR := 210.0
+const RECYCLE_AT := 250.0
+var _recycle_timer := 0.0
 var reservations := {} # junction id -> vehicle
 var rng := RandomNumberGenerator.new()
 
@@ -29,7 +36,7 @@ func populate(district: DistrictLayout, count: int, avoid: Vector3) -> void:
 		var a := e.x if forward else e.y
 		var b := e.y if forward else e.x
 		var mid := (layout.graph.node_position(a) + layout.graph.node_position(b)) * 0.5
-		if mid.distance_to(avoid) < 40.0:
+		if mid.distance_to(avoid) < 25.0 or mid.distance_to(avoid) > BUBBLE_FAR + 40.0:
 			continue
 		# Lagos mix: danfos everywhere, then cars, okadas, kekes, the odd truck.
 		var kind := "car"
@@ -100,6 +107,40 @@ func park_vehicles(district: DistrictLayout, count: int) -> void:
 		mi.mesh = st.commit()
 		mi.material_override = MeshKit.weathered(0.6, 0.3, 0.45)
 		add_child(mi)
+
+
+func _physics_process(delta: float) -> void:
+	if focus == null or not is_instance_valid(focus):
+		return
+	_recycle_timer -= delta
+	if _recycle_timer > 0.0:
+		return
+	_recycle_timer = 0.8
+	var p := focus.global_position
+	for v in vehicles:
+		if not v.turning and v.global_position.distance_to(p) > RECYCLE_AT:
+			_respawn_near(v, p)
+
+
+func _respawn_near(v: TrafficVehicle, p: Vector3) -> void:
+	for attempt in 16:
+		var e: Vector2i = layout.graph.edges[rng.randi() % layout.graph.edges.size()]
+		var forward := rng.randf() < 0.5
+		var a := e.x if forward else e.y
+		var b := e.y if forward else e.x
+		var t := rng.randf_range(0.1, 0.9)
+		var pos := lane_point(a, b, t)
+		var d := pos.distance_to(p)
+		if d < BUBBLE_NEAR or d > BUBBLE_FAR:
+			continue
+		var clear := true
+		for other in vehicles:
+			if other != v and other.global_position.distance_to(pos) < 12.0:
+				clear = false
+				break
+		if clear:
+			v.start_on(a, b, t, rng.randf_range(7.0, 12.0))
+			return
 
 
 func lane_point(a: int, b: int, t: float) -> Vector3:

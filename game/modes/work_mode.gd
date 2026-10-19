@@ -52,7 +52,8 @@ func setup_mode() -> void:
 	traffic = Traffic.new()
 	traffic.name = "Traffic"
 	add_child(traffic)
-	traffic.populate(layout, 56, player.global_position)
+	traffic.populate(layout, 46, player.global_position)
+	traffic.focus = player
 	traffic.park_vehicles(layout, 26)
 	_spawn_hawkers()
 	for i in stops.size():

@@ -7,6 +7,7 @@ var _out := "user://shots"
 var _frames := 0
 var _shots := [90, 400, 900]
 var _open := ""
+var _tour: Array = []
 
 
 func _initialize() -> void:
@@ -20,6 +21,16 @@ func _initialize() -> void:
 			_shots.append(int(a))
 	DirAccess.make_dir_recursive_absolute(_out)
 	var scripts := {"race": "res://modes/race_mode.gd", "work": "res://modes/work_mode.gd"}
+	if which == "tour":
+		# Visit several stops in one run: teleport, settle, capture.
+		_scene = load(scripts["work"]).new()
+		_scene.rng_seed = 3
+		root.add_child(_scene)
+		_tour = ["Garage", "Market Junction", "Under Bridge", "Church Gate", "Filling Station", "Mechanic Village"]
+		_shots = []
+		for i in _tour.size():
+			_shots.append(40 + i * 45)
+		return
 	if scripts.has(which):
 		_scene = load(scripts[which]).new()
 		_scene.autopilot = true
@@ -32,6 +43,12 @@ func _initialize() -> void:
 
 func _process(_delta: float) -> bool:
 	_frames += 1
+	if not _tour.is_empty() and (_frames - 15) % 45 == 0 and (_frames - 15) / 45 < _tour.size():
+		var stop: Dictionary = _scene.layout.stops_by_name[_tour[(_frames - 15) / 45]]
+		var side: Dictionary = stop["sides"][1]
+		var dir: Vector3 = side["direction"]
+		_scene.player.place_at(side["stop_point"] - dir * 16.0, Basis.looking_at(dir, Vector3.UP))
+		_scene.camera.snap()
 	if _frames == 5 and _open == "go_results":
 		_show_sample_results()
 	elif _frames == 5 and _open != "":
