@@ -1,0 +1,5 @@
+# Godot 4 import cache and per-user editor state
+.godot/
+/android/
+*.tmp
+export/
