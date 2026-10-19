@@ -7,6 +7,7 @@ func test_shift_completes_with_fares_paid_once():
 	var result := {}
 	var work := WorkMode.new()
 	work.autopilot = true
+	work.rng_seed = 3
 	work.finished.connect(func(summary): result.merge(summary))
 	add_child_autofree(work)
 	var seconds := 0
@@ -28,4 +29,4 @@ func test_shift_completes_with_fares_paid_once():
 			paid_count += 1
 	assert_eq(int(result.get("fares", -1)), paid_sum, "fares equal the sum of paid journeys")
 	assert_eq(paid_count, int(result.get("journeys", -1)), "one fare per completed journey")
-	gut.p("shift: %d journeys, fares %d, %d s simulated" % [result.get("journeys"), result.get("fares"), seconds])
+	gut.p("shift: %s journeys, fares %s, %d s simulated" % [result.get("journeys"), result.get("fares"), seconds])

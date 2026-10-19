@@ -31,18 +31,75 @@ func populate(district: DistrictLayout, count: int, avoid: Vector3) -> void:
 		var mid := (layout.graph.node_position(a) + layout.graph.node_position(b)) * 0.5
 		if mid.distance_to(avoid) < 40.0:
 			continue
+		# Lagos mix: danfos everywhere, then cars, okadas, kekes, the odd truck.
 		var kind := "car"
 		var roll := rng.randf()
-		if roll < 0.15:
+		if roll < 0.34:
 			kind = "danfo"
-		elif roll < 0.27:
+		elif roll < 0.52:
+			kind = "okada"
+		elif roll < 0.64:
 			kind = "keke"
-		var v := TrafficVehicle.create(kind, CAR_COLORS[rng.randi() % CAR_COLORS.size()])
+		elif roll < 0.7:
+			kind = "truck"
+		var v := TrafficVehicle.create(kind, CAR_COLORS[rng.randi() % CAR_COLORS.size()], rng)
 		v.traffic = self
 		add_child(v)
 		v.start_on(a, b, rng.randf_range(0.2, 0.8), rng.randf_range(8.0, 12.5))
 		vehicles.append(v)
 		placed += 1
+
+
+## Cars, danfos and kekes parked half up on the kerb along the roads, kept
+## clear of stops and junctions. One merged mesh and one static body.
+func park_vehicles(district: DistrictLayout, count: int) -> void:
+	layout = district
+	var r := RandomNumberGenerator.new()
+	r.seed = 77
+	var st := MeshKit.begin()
+	var body := StaticBody3D.new()
+	body.collision_layer = Bus.LAYER_VEHICLES
+	body.collision_mask = 0
+	add_child(body)
+	var stop_points: Array[Vector3] = []
+	for stop in layout.stops:
+		for side in stop["sides"]:
+			stop_points.append(side["stop_point"])
+	var placed := 0
+	var tries := 0
+	while placed < count and tries < count * 20:
+		tries += 1
+		var e: Vector2i = layout.graph.edges[r.randi() % layout.graph.edges.size()]
+		var a := layout.graph.node_position(e.x)
+		var b := layout.graph.node_position(e.y)
+		var dir := (b - a).normalized()
+		var side := 1.0 if r.randf() < 0.5 else -1.0
+		var t := r.randf_range(0.18, 0.82)
+		var pos := a.lerp(b, t) + RoadGraph.right_of(dir) * side * 5.5
+		var clear := true
+		for sp in stop_points:
+			if sp.distance_to(pos) < 20.0:
+				clear = false
+		for v in vehicles:
+			if v.global_position.distance_to(pos) < 9.0:
+				clear = false
+		if not clear:
+			continue
+		var kinds := ["car", "car", "danfo", "keke", "car"]
+		var kind: String = kinds[r.randi() % kinds.size()]
+		var vst := MeshKit.begin()
+		var size := vehicle_mesh(vst, kind, CAR_COLORS[r.randi() % CAR_COLORS.size()], r)
+		var facing := dir if side > 0.0 else -dir
+		var xf := Transform3D(Basis.looking_at(facing, Vector3.UP).rotated(facing, side * 0.06), pos + Vector3(0, 0.08, 0))
+		st.append_from(vst.commit(), 0, xf)
+		CityBuilder.add_box_collider(body, xf.origin + Vector3(0, size.y * 0.5, 0), size, xf.basis)
+		placed += 1
+	if placed > 0:
+		st.index()
+		var mi := MeshInstance3D.new()
+		mi.mesh = st.commit()
+		mi.material_override = MeshKit.weathered(0.6, 0.3, 0.45)
+		add_child(mi)
 
 
 func lane_point(a: int, b: int, t: float) -> Vector3:
@@ -78,6 +135,79 @@ func release(junction: int, v: TrafficVehicle) -> void:
 		reservations.erase(junction)
 
 
+## Builds a traffic or parked vehicle into `st` (origin on the ground) and
+## returns its collision size. Everything is battered to some degree.
+static func vehicle_mesh(st: SurfaceTool, kind: String, color: Color, r: RandomNumberGenerator) -> Vector3:
+	var size := Vector3(1.8, 1.4, 4.3)
+	var dark := Color(0.06, 0.06, 0.06)
+	match kind:
+		"danfo":
+			size = Vector3(1.84, 1.95, 4.57)
+			var yellow := Color(0.95, 0.74, 0.05).lerp(Color(0.9, 0.82, 0.45), r.randf() * 0.4)
+			MeshKit.box(st, Vector3(0, 0.62, 0), Vector3(1.84, 0.8, 4.57), yellow)
+			MeshKit.box(st, Vector3(0, 1.32, 0), Vector3(1.8, 0.6, 4.5), BusVisual.GLASS)
+			MeshKit.box(st, Vector3(0, 1.73, 0), Vector3(1.82, 0.22, 4.53), yellow)
+			for y: float in [0.94, 0.64]:
+				MeshKit.box(st, Vector3(0, y, 0), Vector3(1.854, 0.075, 4.584), dark)
+			for p in r.randi_range(1, 5):
+				var tone: Color = [Color(0.45, 0.24, 0.13), Color(0.55, 0.56, 0.53)][r.randi() % 2]
+				MeshKit.box(st, Vector3(0.925 * (1 if r.randf() < 0.5 else -1), r.randf_range(0.35, 0.95), r.randf_range(-2.0, 2.0)), Vector3(0.012, 0.2, r.randf_range(0.2, 0.7)), tone)
+			for x: float in [-1.0, 1.0]:
+				for z: float in [-1.23, 1.23]:
+					MeshKit.box(st, Vector3(x * 0.8, 0.34, z), Vector3(0.24, 0.68, 0.68), dark)
+		"keke":
+			size = Vector3(1.35, 1.8, 2.8)
+			var yellow := Color(0.96, 0.78, 0.08)
+			MeshKit.box(st, Vector3(0, 0.6, 0.3), Vector3(1.3, 0.6, 1.9), yellow)
+			MeshKit.box(st, Vector3(0, 0.9, -1.0), Vector3(0.7, 0.9, 0.6), yellow)
+			MeshKit.box(st, Vector3(0, 1.75, 0.0), Vector3(1.35, 0.08, 2.6), dark.lightened(0.1))
+			for x: float in [-0.62, 0.62]:
+				MeshKit.box(st, Vector3(x, 1.25, 0.9), Vector3(0.05, 1.0, 0.05), dark)
+			MeshKit.box(st, Vector3(0, 1.3, -1.25), Vector3(1.1, 0.7, 0.03), BusVisual.GLASS)
+			MeshKit.box(st, Vector3(0, 0.95, 0.3), Vector3(1.2, 0.35, 1.0), Color(0.15, 0.15, 0.15))
+			for wheel: Vector3 in [Vector3(0, 0.25, -1.1), Vector3(-0.6, 0.25, 0.7), Vector3(0.6, 0.25, 0.7)]:
+				MeshKit.box(st, wheel, Vector3(0.14, 0.5, 0.5), dark)
+		"okada":
+			size = Vector3(0.7, 1.7, 1.9)
+			StreetDressing.okada_mesh(st, Vector3.ZERO, Vector3.FORWARD, r)
+			# Rider (and often a passenger) in place.
+			var shirt: Color = StreetDressing.CLOTHES[r.randi() % StreetDressing.CLOTHES.size()]
+			MeshKit.box(st, Vector3(0, 1.2, 0.05), Vector3(0.42, 0.6, 0.28), shirt)
+			MeshKit.box(st, Vector3(0, 1.62, 0.0), Vector3(0.24, 0.26, 0.26), Color(0.28, 0.17, 0.1))
+			if r.randf() < 0.6:
+				var shirt2: Color = StreetDressing.CLOTHES[r.randi() % StreetDressing.CLOTHES.size()]
+				MeshKit.box(st, Vector3(0, 1.22, 0.55), Vector3(0.42, 0.6, 0.28), shirt2)
+				MeshKit.box(st, Vector3(0, 1.64, 0.55), Vector3(0.24, 0.26, 0.26), Color(0.33, 0.2, 0.12))
+		"truck":
+			size = Vector3(2.4, 3.2, 8.5)
+			var cab: Color = [Color(0.85, 0.85, 0.82), Color(0.2, 0.35, 0.6), Color(0.65, 0.12, 0.1)][r.randi() % 3]
+			MeshKit.box(st, Vector3(0, 1.4, -3.3), Vector3(2.4, 2.2, 1.9), cab)
+			MeshKit.box(st, Vector3(0, 1.9, -4.26), Vector3(2.1, 0.8, 0.04), BusVisual.GLASS)
+			if r.randf() < 0.5:
+				MeshKit.prism(st, Vector3(0, 0.9, 1.0), 1.1, 2.0, Color(0.7, 0.7, 0.72), 10)
+			else:
+				MeshKit.box(st, Vector3(0, 1.8, 1.0), Vector3(2.4, 2.6, 6.2), Color(0.45, 0.32, 0.2))
+			MeshKit.box(st, Vector3(0, 0.55, 0.5), Vector3(1.0, 0.3, 8.0), dark)
+			for z: float in [-3.3, 0.5, 2.6]:
+				for x: float in [-1.05, 1.05]:
+					MeshKit.box(st, Vector3(x, 0.5, z), Vector3(0.3, 1.0, 1.0), dark)
+		_:
+			var body := color.lerp(Color(0.6, 0.58, 0.55), r.randf() * 0.3)
+			MeshKit.box(st, Vector3(0, 0.62, 0), Vector3(1.8, 0.62, 4.3), body)
+			MeshKit.box(st, Vector3(0, 1.15, 0.15), Vector3(1.62, 0.5, 2.2), BusVisual.GLASS)
+			MeshKit.box(st, Vector3(0, 1.42, 0.15), Vector3(1.56, 0.06, 2.0), body)
+			if r.randf() < 0.4:
+				# Mismatched door from a different car.
+				MeshKit.box(st, Vector3(0.905, 0.62, -0.2), Vector3(0.012, 0.55, 1.0), CAR_COLORS[r.randi() % CAR_COLORS.size()])
+			MeshKit.box(st, Vector3(0, 0.4, -2.18), Vector3(1.7, 0.18, 0.08), dark)
+			for x: float in [-0.82, 0.82]:
+				for z: float in [-1.35, 1.35]:
+					MeshKit.box(st, Vector3(x, 0.32, z), Vector3(0.2, 0.64, 0.64), dark)
+	# Shadow pool on the road.
+	MeshKit.box(st, Vector3(0, 0.035, 0), Vector3(size.x + 0.3, 0.005, size.z + 0.3), Color(0.08, 0.08, 0.08))
+	return size
+
+
 class TrafficVehicle extends AnimatableBody3D:
 	var traffic: Traffic
 	var kind := "car"
@@ -95,43 +225,20 @@ class TrafficVehicle extends AnimatableBody3D:
 	var _next := 0
 	var _length := 4.2
 
-	static func create(kind_: String, color: Color) -> TrafficVehicle:
+	static func create(kind_: String, color: Color, r: RandomNumberGenerator) -> TrafficVehicle:
 		var v := TrafficVehicle.new()
 		v.kind = kind_
 		v.sync_to_physics = true
 		v.collision_layer = Bus.LAYER_VEHICLES
 		v.collision_mask = 0
-		var size := Vector3(1.8, 1.4, 4.2)
 		var st := MeshKit.begin()
-		match kind_:
-			"danfo":
-				size = Vector3(1.84, 1.95, 4.57)
-				var yellow := Color(0.95, 0.74, 0.05)
-				MeshKit.box(st, Vector3(0, 0.5, 0), Vector3(1.84, 0.8, 4.57), yellow)
-				MeshKit.box(st, Vector3(0, 1.2, 0), Vector3(1.8, 0.6, 4.5), BusVisual.GLASS)
-				MeshKit.box(st, Vector3(0, 1.6, 0), Vector3(1.82, 0.22, 4.53), yellow)
-				for y in [0.82, 0.52]:
-					MeshKit.box(st, Vector3(0, y, 0), Vector3(1.854, 0.075, 4.584), Color(0.06, 0.06, 0.06))
-			"keke":
-				size = Vector3(1.3, 1.75, 2.7)
-				MeshKit.box(st, Vector3(0, 0.55, 0.2), Vector3(1.3, 0.7, 2.2), Color(0.95, 0.75, 0.05))
-				MeshKit.box(st, Vector3(0, 1.55, 0.25), Vector3(1.3, 0.1, 2.0), Color(0.1, 0.4, 0.2))
-				for x in [-0.6, 0.6]:
-					MeshKit.box(st, Vector3(x, 1.1, 0.25), Vector3(0.05, 0.9, 0.05), Color(0.2, 0.2, 0.2))
-				MeshKit.box(st, Vector3(0, 0.75, -1.05), Vector3(0.5, 0.6, 0.5), Color(0.95, 0.75, 0.05))
-			_:
-				MeshKit.box(st, Vector3(0, 0.45, 0), Vector3(1.8, 0.6, 4.2), color)
-				MeshKit.box(st, Vector3(0, 0.98, 0.2), Vector3(1.6, 0.5, 2.2), BusVisual.GLASS)
-				MeshKit.box(st, Vector3(0, 1.25, 0.2), Vector3(1.55, 0.06, 2.0), color)
-		for wx in [-size.x * 0.45, size.x * 0.45]:
-			for wz in [-size.z * 0.32, size.z * 0.32]:
-				MeshKit.box(st, Vector3(wx, 0.3, wz), Vector3(0.2, 0.6, 0.6), Color(0.06, 0.06, 0.06))
-		var mi := MeshKit.mesh_instance(st, 0.5)
+		var size := Traffic.vehicle_mesh(st, kind_, color, r)
+		st.index()
+		var mi := MeshInstance3D.new()
+		mi.mesh = st.commit()
+		mi.material_override = MeshKit.weathered(0.6, 0.3, 0.45, true)
 		mi.visibility_range_end = 220.0
 		v.add_child(mi)
-		var shadow := MeshKit.blob_shadow(size.x + 0.6, size.z + 0.8)
-		shadow.position.y = 0.03
-		v.add_child(shadow)
 		var shape := CollisionShape3D.new()
 		var box := BoxShape3D.new()
 		box.size = size

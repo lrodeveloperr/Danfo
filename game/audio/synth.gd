@@ -58,6 +58,32 @@ static func engine_loop() -> AudioStreamWAV:
 	return stream
 
 
+## Two-second street bed: crowd murmur (band-limited noise with slow swells)
+## over a generator drone. Every component completes whole cycles to loop.
+static func street_loop() -> AudioStreamWAV:
+	if _cache.has("street"):
+		return _cache["street"]
+	var count := RATE * 2
+	var samples := PackedFloat32Array()
+	samples.resize(count)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 23
+	var lp := 0.0
+	var lp2 := 0.0
+	for i in count:
+		var t := float(i) / RATE
+		var n := rng.randf_range(-1.0, 1.0)
+		lp += (n - lp) * 0.08
+		lp2 += (lp - lp2) * 0.3
+		var swell := 0.6 + 0.4 * sin(TAU * 0.5 * t) * sin(TAU * 1.5 * t + 0.7)
+		var murmur := (lp - lp2) * 3.0 * swell
+		var drone := sin(TAU * 50.0 * t) * 0.12 + sin(TAU * 100.0 * t) * 0.07 + sin(TAU * 150.0 * t) * 0.04
+		samples[i] = tanh((murmur + drone) * 1.2) * 0.5
+	var stream := _to_wav(samples, true)
+	_cache["street"] = stream
+	return stream
+
+
 static func _to_wav(samples: PackedFloat32Array, loop: bool) -> AudioStreamWAV:
 	var bytes := PackedByteArray()
 	bytes.resize(samples.size() * 2)

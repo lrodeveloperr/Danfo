@@ -6,12 +6,16 @@ extends DriveScene
 ## collects each fare once when its journey completes.
 
 const SERVICE_RADIUS := 7.5
-const ALIGN_DOT := 0.75
+const ALIGN_DOT := 0.6
+## Stopped at the chosen stop this long with nothing happening: re-plan.
+const STUCK_AT_STOP := 6.0
 const ALIGHT_STEP := 0.7
 const BOARD_TIMEOUT := 4.0
 const MAX_WAITING := 6
 
 var route_id := "garage_loop"
+## Fixed demand for tests; 0 means random each shift.
+var rng_seed := 0
 var route: Dictionary
 var stops: Array[String] = []
 var manifest: PassengerManifest
@@ -29,12 +33,13 @@ var _demand_timer := 0.0
 var _owa_called := ""
 var _autopilot_ai: BusAI
 var _served_at := {} # stop name -> elapsed time it was last served
+var _idle_at_target := 0.0
 var _marker: MeshInstance3D
 
 
 func setup_mode() -> void:
 	event_id = GameState.new_event_id("work")
-	rng.seed = Time.get_ticks_usec()
+	rng.seed = rng_seed if rng_seed != 0 else Time.get_ticks_usec()
 	route = Content.ROUTES[route_id]
 	for s in route["stops"]:
 		stops.append(s)
@@ -47,7 +52,9 @@ func setup_mode() -> void:
 	traffic = Traffic.new()
 	traffic.name = "Traffic"
 	add_child(traffic)
-	traffic.populate(layout, 14, player.global_position)
+	traffic.populate(layout, 56, player.global_position)
+	traffic.park_vehicles(layout, 26)
+	_spawn_hawkers()
 	for i in stops.size():
 		_spawn_waiting(i, rng.randi_range(2, 4))
 	_add_roadside_people()
@@ -59,6 +66,24 @@ func setup_mode() -> void:
 		_autopilot_ai.max_speed = 13.0
 		player.driver = _autopilot_ai
 	_subtitle("Conductor: %s! %s! Enter with your change!" % [stops[0], stops[1]], 3.5)
+
+
+func city_options() -> Dictionary:
+	return {"mode": "work"}
+
+
+## Hawkers with goods on their heads, walking the kerbs.
+func _spawn_hawkers() -> void:
+	for i in 14:
+		var stop: Dictionary = layout.stops[rng.randi() % layout.stops.size()]
+		var side: Dictionary = stop["sides"][rng.randi() % 2]
+		var dir: Vector3 = side["direction"]
+		var start: Vector3 = side["wait_point"] + Vector3(0, 0.15, 0) - RoadGraph.right_of(dir) * 1.6
+		var h := Pedestrian.create(rng.randi())
+		h.carries_load = true
+		add_child(h)
+		h.global_position = start + dir * rng.randf_range(-20.0, 20.0)
+		h.patrol(start - dir * 30.0, start + dir * 30.0)
 
 
 func is_servicing() -> bool:
@@ -89,6 +114,7 @@ func mode_physics(delta: float) -> void:
 		_update_service(delta)
 	if _autopilot_ai:
 		_autopilot_ai.hold = not service.is_empty()
+	_check_stuck_at_target(delta)
 	_guide_timer -= delta
 	if _guide_timer <= 0.0:
 		_guide_timer = 1.0
@@ -100,6 +126,25 @@ func mode_physics(delta: float) -> void:
 		int(route["journeys_target"]), UiKit.money(manifest.fares_total)])
 	if service.is_empty() and manifest.journeys_completed >= int(route["journeys_target"]):
 		_finish_shift(true)
+
+
+## Stopped near the target stop but service cannot start (wrong angle, or
+## nobody to serve on this kerb): give the stop a rest and pick again.
+func _check_stuck_at_target(delta: float) -> void:
+	if not service.is_empty() or target_stop == "" or absf(player.speed) > 0.5:
+		_idle_at_target = 0.0
+		return
+	if player.global_position.distance_to(_target_point) > SERVICE_RADIUS + 3.0:
+		_idle_at_target = 0.0
+		return
+	_idle_at_target += delta
+	if _idle_at_target > STUCK_AT_STOP:
+		_idle_at_target = 0.0
+		_served_at[target_stop] = elapsed
+		if manifest.riders_for(target_stop).is_empty():
+			target_stop = ""
+		_target_key = ""
+		_guide_timer = 0.0
 
 
 func _finish_shift(completed: bool) -> void:
@@ -306,6 +351,7 @@ func _update_target() -> void:
 	var best_key := ""
 	var best_stop := ""
 	var best_point := Vector3.ZERO
+	var best_side := {}
 	var dropoffs := manifest.riding_destinations()
 	for stop_name in candidates:
 		var stop: Dictionary = layout.stops_by_name[stop_name]
@@ -324,6 +370,7 @@ func _update_target() -> void:
 				best_key = "%s:%d" % [stop_name, i]
 				best_stop = stop_name
 				best_point = side["stop_point"]
+				best_side = side
 	if best_stop == "":
 		return
 	target_stop = best_stop
@@ -333,9 +380,7 @@ func _update_target() -> void:
 	var side_dir: Vector3 = layout.stops_by_name[best_stop]["sides"][int(best_key.get_slice(":", 1))]["direction"]
 	_marker.global_transform.basis = Basis.looking_at(side_dir, Vector3.UP)
 	if autopilot and best_stop != _target_key.get_slice(":", 0):
-		var path := PackedVector3Array([player.global_position])
-		path.append_array(best_points)
-		_autopilot_ai.set_path(BusAI.densify(path, false, 3.0), false)
+		_autopilot_ai.set_path(BusAI.densify(_centre_route(best_points, best_side), false, 3.0), false, player.global_position)
 		_autopilot_ai.stop_point = best_point
 	_target_key = best_key
 
@@ -384,6 +429,23 @@ func _approach(side: Dictionary, start: int) -> PackedVector3Array:
 		return PackedVector3Array([side["stop_point"]])
 	var pts := layout.graph.path_points(start, side["from_node"])
 	pts.append(side["stop_point"])
+	return pts
+
+
+## Road-centre version of a route for the autopilot (its lane offset puts it
+## in the kerbside lane): junctions, then the middle of the stop's road.
+func _centre_route(route: PackedVector3Array, side: Dictionary) -> PackedVector3Array:
+	var a := layout.graph.node_position(side["from_node"])
+	var b := layout.graph.node_position(side["to_node"])
+	var dir: Vector3 = side["direction"]
+	var pts := PackedVector3Array()
+	if route.size() == 1:
+		pts.append(a + dir * maxf((player.global_position - a).dot(dir), 0.0))
+	else:
+		for i in route.size() - 1:
+			pts.append(route[i])
+	pts.append((a + b) * 0.5)
+	pts.append((a + b) * 0.5 + dir * 6.0)
 	return pts
 
 

@@ -65,6 +65,9 @@ func drive_input(bus: Bus) -> Dictionary:
 	_update_avoidance(bus)
 	var dir := _direction_at(_index)
 	target += RoadGraph.right_of(dir) * (lane_offset + _avoid)
+	# Final approach: steer straight onto the kerbside stop point.
+	if stop_point != null and pos.distance_to(stop_point) < 22.0:
+		target = stop_point
 	var to := target - pos
 	to.y = 0.0
 	var fwd := bus.forward_vector()

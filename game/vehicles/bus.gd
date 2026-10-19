@@ -32,6 +32,9 @@ const LAYER_VEHICLES := 2
 ## Object with `drive_input(bus: Bus) -> Dictionary` returning throttle, brake, steer.
 var driver: Object = null
 var controls_locked := false
+## Half-size of the playable area; leaving it (or falling below the ground)
+## puts the bus back at its last stable spot. 0 disables the check.
+var bounds := 0.0
 
 var throttle := 0.0
 var brake := 0.0
@@ -53,7 +56,7 @@ var _has_recover_point := false
 
 
 ## Builds a bus with its collision box and procedural body, ready to add.
-static func create(model := "classic14", paint := "lagos_yellow", slogan := "") -> Bus:
+static func create(model := "classic14", paint := "lagos_yellow", slogan := "", wear := 0.35, look_seed := 0) -> Bus:
 	var bus := Bus.new()
 	bus.model_id = model
 	var dims: Dictionary = Content.BUS_MODELS[model]
@@ -66,8 +69,56 @@ static func create(model := "classic14", paint := "lagos_yellow", slogan := "") 
 	var vis := BusVisual.new()
 	vis.name = "Visual"
 	bus.add_child(vis)
-	vis.build(model, paint, slogan)
+	vis.build(model, paint, slogan, wear, look_seed)
+	bus._add_exhaust()
 	return bus
+
+
+## Black diesel smoke from the exhaust, heavier under throttle.
+func _add_exhaust() -> void:
+	var smoke := CPUParticles3D.new()
+	smoke.name = "Exhaust"
+	smoke.amount = 24
+	smoke.lifetime = 1.6
+	smoke.position = Vector3(-0.6, -0.25, Content.BUS_MODELS[model_id]["length"] * 0.5 + 0.1)
+	smoke.direction = Vector3(0, 0.4, 1)
+	smoke.spread = 25.0
+	smoke.initial_velocity_min = 0.6
+	smoke.initial_velocity_max = 1.4
+	smoke.gravity = Vector3(0, 0.5, 0)
+	smoke.scale_amount_min = 0.25
+	smoke.scale_amount_max = 0.6
+	var curve := Curve.new()
+	curve.add_point(Vector2(0, 0.4))
+	curve.add_point(Vector2(1, 1.8))
+	smoke.scale_amount_curve = curve
+	var grad := Gradient.new()
+	grad.set_color(0, Color(0.1, 0.1, 0.1, 0.5))
+	grad.set_color(1, Color(0.3, 0.3, 0.3, 0.0))
+	smoke.color_ramp = grad
+	var quad := QuadMesh.new()
+	quad.size = Vector2(0.6, 0.6)
+	var puff := Gradient.new()
+	puff.set_color(0, Color(1, 1, 1, 1))
+	puff.set_color(1, Color(1, 1, 1, 0))
+	var puff_tex := GradientTexture2D.new()
+	puff_tex.gradient = puff
+	puff_tex.fill = GradientTexture2D.FILL_RADIAL
+	puff_tex.fill_from = Vector2(0.5, 0.5)
+	puff_tex.fill_to = Vector2(1.0, 0.5)
+	puff_tex.width = 32
+	puff_tex.height = 32
+	var mat := StandardMaterial3D.new()
+	mat.albedo_texture = puff_tex
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.vertex_color_use_as_albedo = true
+	mat.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
+	quad.material = mat
+	smoke.mesh = quad
+	smoke.local_coords = false
+	add_child(smoke)
+	_exhaust = smoke
 
 
 func _ready() -> void:
@@ -98,6 +149,7 @@ func _ready() -> void:
 	physics_material_override = mat
 
 
+var _exhaust: CPUParticles3D
 var _engine_audio: AudioStreamPlayer3D
 var _horn_audio: AudioStreamPlayer3D
 
@@ -150,6 +202,8 @@ func _physics_process(delta: float) -> void:
 	steer_angle = move_toward(steer_angle, steer_input * max_steer, steer_rate * delta)
 	distance_travelled += absf(speed) * delta
 	_track_recovery(delta)
+	if _exhaust:
+		_exhaust.emitting = throttle > 0.2 or absf(speed) > 2.0
 	if _engine_audio:
 		_engine_audio.pitch_scale = 0.75 + clampf(absf(speed) / top_speed, 0.0, 1.0) * 1.1 + throttle * 0.15
 	if visual:
@@ -241,10 +295,14 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	var v := state.linear_velocity
 	state.apply_central_force(-v * v.length() * 0.95)
 
-	# Contact stability: cap spin so hard hits stay recoverable.
+	# Contact stability: cap spin and speed so hard hits (for example being
+	# pinned between moving traffic and a wall) stay recoverable.
 	var max_spin := 3.5
 	if state.angular_velocity.length() > max_spin:
 		state.angular_velocity = state.angular_velocity.normalized() * max_spin
+	var max_velocity := top_speed * 1.4
+	if state.linear_velocity.length() > max_velocity:
+		state.linear_velocity = state.linear_velocity.normalized() * max_velocity
 
 
 func _track_recovery(delta: float) -> void:
@@ -259,6 +317,9 @@ func _track_recovery(delta: float) -> void:
 			recover()
 	else:
 		_upside_down_time = 0.0
+	var p := global_position
+	if p.y < -3.0 or (bounds > 0.0 and (absf(p.x) > bounds or absf(p.z) > bounds)):
+		recover()
 
 
 ## Puts the bus back on its wheels at the last stable spot.

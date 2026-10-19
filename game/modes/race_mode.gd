@@ -37,11 +37,12 @@ func setup_mode() -> void:
 	var i := 0
 	for rival_id in Content.RIVALS:
 		var r: Dictionary = Content.RIVALS[rival_id]
-		var bus := Bus.create("classic14", r["paint"], r["slogan"])
+		var bus := Bus.create("classic14", r["paint"], r["slogan"], 0.5 + i * 0.15, i * 97 + 5)
 		bus.name = rival_id
 		add_child(bus)
 		bus.place_at(start + slots[i], facing)
 		bus.set_racing(true)
+		bus.bounds = layout.half_extent() + DistrictLayout.ROAD_WIDTH
 		bus.enable_audio(r["horn"], false)
 		var ai := BusAI.new()
 		ai.set_path(path, true, start + slots[i])

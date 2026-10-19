@@ -15,7 +15,7 @@ static func screen(parent: Node) -> Control:
 	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	root.add_child(bg)
 	# Two stripes echo the danfo livery.
-	for y in [0.968, 0.986]:
+	for y: float in [0.968, 0.986]:
 		var stripe := ColorRect.new()
 		stripe.color = YELLOW if y < 0.98 else Color(0.2, 0.18, 0.1)
 		stripe.anchor_left = 0.0

@@ -29,7 +29,8 @@ func _ready() -> void:
 	city = CityBuilder.new()
 	city.name = "City"
 	add_child(city)
-	city.build(layout)
+	city.build(layout, city_options())
+	add_child(Ambience.new())
 	hud = Hud.new()
 	add_child(hud)
 	hud.pause_pressed.connect(open_pause)
@@ -39,6 +40,11 @@ func _ready() -> void:
 ## Override in each mode.
 func setup_mode() -> void:
 	pass
+
+
+## Override: what the city should include for this mode.
+func city_options() -> Dictionary:
+	return {}
 
 
 ## Override: per-tick mode logic.
@@ -63,10 +69,11 @@ func leave_from_pause() -> void:
 
 func spawn_player(pos: Vector3, facing: Basis) -> Bus:
 	var b := GameState.bus()
-	player = Bus.create(b["model"], b["paint"], "")
+	player = Bus.create(b["model"], b["paint"], "", 0.45, 11)
 	player.name = "PlayerBus"
 	add_child(player)
 	player.place_at(pos, facing)
+	player.bounds = layout.half_extent() + DistrictLayout.ROAD_WIDTH
 	player.enable_audio(b["horn"], true)
 	player.driver = PlayerDriver.new()
 	camera = ChaseCamera.new()
