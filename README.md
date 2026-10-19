@@ -43,9 +43,9 @@ Unit tests cover settlement and ownership, ad pacing, saves (corruption fallback
 
 - Android/iOS export presets, signing and device runs (Phase 0 gates in PRODUCT_SPEC.md).
 - The real AdMob plugin: ads are labelled placeholders behind the same pacing and exactly-once reward logic.
-- Per-OS renderer override: the prototype uses Compatibility everywhere, including iOS.
+- Device quality tiers (Low/Mid/High/optional Ultra) and the High/Ultra download packs: the prototype uses Compatibility everywhere, including iOS.
 - Mid-shift save and resume, upgrades/setups, regular passengers, route branches, ghosts and bus-history mementos.
-- Original Blender models, recorded audio and the OFL Danfo typeface (current art and sound are procedural placeholders).
+- Best-in-class art: high-detail Blender models with physically based materials from Lagos photos, rigged and animated people, designed lighting, recorded audio and the OFL Danfo typeface. Current art and sound are procedural placeholders for testing gameplay and will be replaced entirely (PRODUCT_SPEC.md, Graphics quality: best in class).
 - Compliance screens awaiting approval (age screen, privacy options, report-an-ad).
 - Economy values, which are placeholders pending your decision.
 

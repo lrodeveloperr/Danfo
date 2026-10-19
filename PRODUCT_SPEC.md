@@ -112,6 +112,26 @@ Use original or appropriately cleared assets, fictional business graphics and a 
 
 The user selected Godot on 18 October 2026, with Blender, Krita, Audacity and cleared/CC0 materials. The zero-new-spend rule stands: no new paid tools, packs, commissions, plugins or engine royalties. Unity 6 was evaluated and is not adopted. The pinned versions are in **Engine and platform baseline** below. No measured claim that this stack is optimal or that a phone-performance target has passed.
 
+### Graphics quality: best in class
+
+User direction, 19 October 2026: every graphical detail is best in class, and graphics are not limited unnecessarily. Blocky or placeholder art does not ship. The procedural box geometry in the current prototype exists only to test gameplay and is replaced entirely.
+
+- **Assets are authored at top quality, once.** Vehicles, characters, buildings and props are modelled in Blender at high detail, with physically based materials (colour, roughness, normal and wear maps). Lower levels of detail and distant stand-ins are generated from those same assets; nobody authors a cheaper art style for weaker phones.
+- **Real surfaces come from real Lagos.** Textures come from the team's own photographs ([docs/photo-reference-list.md](docs/photo-reference-list.md)) and CC0 libraries. Details are layered on as decals: grime, rust, stickers, slogans, posters and painted signs.
+- **Characters are rigged and animated people.** They walk, board, sit, call and haggle. Crowds use the same models with animation level of detail, not static figures.
+- **Lighting is designed, not default.** Lightmaps are baked at high quality and light probes cover moving objects. The sun gives real-time shadows near the camera. Lagos light and atmosphere are tuned from reference photos: harmattan haze, rain and night.
+- **Quality scales per device; the art does not change.** Phones have real limits, so each device tier gets the same game at the resolution, density and effects it can sustain. The lowest tier keeps the game playable on Nigeria's most common phones, but never defines how the game looks.
+- **Gameplay, collision and physics are identical on every tier.**
+- **Free tools only:**
+  - Blender for modelling, sculpting, baking, rigging and animation.
+  - Krita for painting and lettering.
+  - Material Maker for procedural materials.
+  - Meshroom for photogrammetry of props and surfaces.
+  - MPFB/MakeHuman (CC0 output) for character bases.
+  - Mixamo animations, checked against its terms before use.
+  - Poly Haven and ambientCG CC0 assets.
+  - No purchased models.
+
 Reuse the bus model for menus and driving. Scale meshes/animations/visual detail with distance while keeping gameplay geometry and state consistent. Test modest Android devices and target iPhones over longer sessions. No inherited 5 MB micro-game cap; the download and memory budgets below are engineering targets to measure, not player-facing promises.
 
 ## Engine and platform baseline
@@ -122,11 +142,14 @@ Research, sources and reconciled conflicts: [reports/Danfo mobile build and rele
 | --- | --- |
 | Engine | Godot 4.7.2-stable with GDScript. Fallback 4.6.3, the oldest release targeting API 36. Re-evaluate at 4.8.1. |
 | Physics | Built-in Jolt. Project-owned RigidBody3D bus controller with shape-cast suspension and piecewise grip curves; VehicleBody3D for prototypes only. Fixed 60 Hz physics with interpolation on every tier. Ghosts record transforms, because Godot physics is not deterministic. |
-| Android rendering | Compatibility renderer (OpenGL ES 3): baked lightmaps, MSAA 2x, blob shadows, a real shadow on the player bus only, MultiMesh for repeated props, material warm-up during loading. A Vulkan Mobile tier waits for Godot 4.8 and soft-launch crash data. |
-| iOS rendering | Mobile renderer on Metal; deployment target iOS 16.0. If matching both renderers' lighting proves costly, use Compatibility on both. |
+| Rendering: High tier | Mobile renderer (Vulkan on Android, Metal on iOS) on recent iPhones and upper-mid/flagship Android. 2K physically based textures, decals, real-time sun shadows near the camera, reflection probes, baked lightmaps with probes, full crowd and traffic density, glow and filmic tone mapping. 60 fps where it can be sustained. |
+| Rendering: Ultra (optional) | Forward+ on the newest iPhones and flagship Android, adding ambient occlusion, screen-space reflections on wet roads and volumetric haze. Ships only if device tests show it holds frame rate and temperature. |
+| Rendering: Mid tier | Mobile renderer, 1K textures, shadows on nearby vehicles, reduced crowd and traffic density. 30 fps. |
+| Rendering: Low tier | Compatibility renderer (OpenGL ES 3) for the Mali-G52 3 GB floor and phones without reliable Vulkan. 512 px textures, baked lighting, contact shadows faked under vehicles and people, reduced density, material warm-up during loading. 30 fps. |
+| Rendering: all tiers | One set of source assets, with detail levels and distant stand-ins generated from it. Tier chosen automatically on first launch, with a manual override in Settings. iOS deployment target 16.0. |
 | Android packaging | AAB; targetSdk 36, minSdk 24; arm64-v8a and armeabi-v7a; custom size-optimised export templates built with NDK r28+ (16 KB aligned) and debug symbols. |
 | iOS packaging | Xcode 26.2 or later now; Xcode 27/iOS 27 SDK before April 2027. Privacy manifest completed in Godot's export options. |
-| Content delivery | Launch content is install-time. Write a Play Asset Delivery on-demand plugin before a second district ships. No self-hosted downloadable packs. |
+| Content delivery | The first download carries the game with Low/Mid assets. High and Ultra texture and audio packs download after install, through Play Asset Delivery on Android (a small Godot plugin is needed before launch) and Apple-hosted Background Assets on iOS (iOS 26 or later; older iPhones keep the Mid assets). They download on Wi-Fi by default, show their size, and can be removed. No self-hosted downloadable packs. |
 | Ads and consent | Poing Studios godot-admob-plugin v5.1.0: AdMob bidding with five or six mediation partners, Google UMP consent, and on iOS the ATT prompt after the first completed event. Interstitial and rewarded units only. Rewards are granted on the device against a pending-reward record. |
 | Thermal | Small native plugins for Android thermal headroom and iOS thermal state. The quality governor lowers render scale, then shadows/LOD, then ambient density, then frame rate; never the physics rate. |
 | Crash and analytics | Play vitals and Xcode Organizer. Recommended, subject to the telemetry decision below: sentry-godot 2.3.0 and GameAnalytics Godot SDK 3.1.2. Remote config does not move ad pacing beyond the advertising baseline without user approval. |
@@ -137,9 +160,10 @@ Device tiers and budgets:
 
 - **Floor:** Helio G81/G85 with Mali-G52 MC2 and 3–4 GB RAM (e.g. Galaxy A06, Redmi 14C, Tecno Spark 40 4G, Infinix Hot 60i). 30 fps locked; P95 frame time ≤ 33.3 ms after minute 10 of a 30-minute run; ≤ 150 draw calls; resident memory ≤ 800 MB on 3 GB phones.
 - **Target:** Helio G99/Dimensity 6400 with Mali-G57. 30 fps at higher quality, 60 fps optional.
-- **High:** Mali-G68-class Android and iPhone XR or newer. 60 fps, dropping to 30 under thermal stress.
+- **High:** Mali-G68-class Android and newer, and iPhone XR or newer. Full-quality assets and effects. 60 fps where sustainable, dropping to 30 under thermal stress.
+- **Ultra:** the newest iPhones and flagship Android, adding Forward+ effects only if device tests show they hold.
 - **Below floor:** Unisoc T603/T7250, PowerVR GE8320 and 2–3 GB Android Go phones are excluded in the Play device catalogue at launch and reconsidered after soft-launch vitals.
-- **Size:** first download ≤ 150 MB per device on Play (stretch 100 MB); installed footprint ≤ 400 MB.
+- **Size:** first download ≤ 150 MB per device on Play (stretch 100 MB), because mobile data costs Nigerian players about ₦58 per 100 MB. Installed footprint ≤ 400 MB on Low/Mid. High and Ultra packs add what full-quality assets need (expected 1–2 GB), downloaded optionally after install.
 - **Stability:** internal gate of ≤ 0.5% crash rate and ≤ 0.25% ANR rate, with no phone model above 4%.
 
 Store gates:
