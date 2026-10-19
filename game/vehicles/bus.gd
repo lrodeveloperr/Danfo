@@ -81,17 +81,45 @@ func _ready() -> void:
 	]
 	mass = base_mass
 	center_of_mass_mode = RigidBody3D.CENTER_OF_MASS_MODE_CUSTOM
-	center_of_mass = Vector3(0.0, 0.32, 0.35) # low, slightly rearward (rear engine)
+	center_of_mass = Vector3(0.0, 0.3, 0.15) # low, slightly rearward (rear engine)
 	collision_layer = LAYER_VEHICLES
 	collision_mask = LAYER_WORLD | LAYER_VEHICLES
 	can_sleep = false
 	continuous_cd = false
-	linear_damp = 0.05
-	angular_damp = 0.6
+	# Drag and rolling resistance are modelled explicitly, so replace Godot's
+	# default damping instead of adding to it.
+	linear_damp_mode = RigidBody3D.DAMP_MODE_REPLACE
+	linear_damp = 0.0
+	angular_damp_mode = RigidBody3D.DAMP_MODE_REPLACE
+	angular_damp = 0.5
 	var mat := PhysicsMaterial.new()
 	mat.friction = 0.35 # low body friction: buses scrape past instead of sticking
 	mat.bounce = 0.05
 	physics_material_override = mat
+
+
+var _engine_audio: AudioStreamPlayer3D
+var _horn_audio: AudioStreamPlayer3D
+
+
+func enable_audio(horn_id: String, with_engine: bool) -> void:
+	_horn_audio = AudioStreamPlayer3D.new()
+	_horn_audio.stream = Synth.horn(horn_id)
+	_horn_audio.unit_size = 12.0
+	_horn_audio.volume_db = -2.0
+	add_child(_horn_audio)
+	if with_engine:
+		_engine_audio = AudioStreamPlayer3D.new()
+		_engine_audio.stream = Synth.engine_loop()
+		_engine_audio.unit_size = 8.0
+		_engine_audio.volume_db = -10.0
+		add_child(_engine_audio)
+		_engine_audio.play()
+
+
+func play_horn() -> void:
+	if _horn_audio and not _horn_audio.playing:
+		_horn_audio.play()
 
 
 func set_passenger_count(count: int) -> void:
@@ -122,6 +150,8 @@ func _physics_process(delta: float) -> void:
 	steer_angle = move_toward(steer_angle, steer_input * max_steer, steer_rate * delta)
 	distance_travelled += absf(speed) * delta
 	_track_recovery(delta)
+	if _engine_audio:
+		_engine_audio.pitch_scale = 0.75 + clampf(absf(speed) / top_speed, 0.0, 1.0) * 1.1 + throttle * 0.15
 	if visual:
 		visual.update_wheels(self, delta)
 
@@ -188,7 +218,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		if brake > 0.0 and not reversing:
 			var stop_force := -v_long * corner_mass / dt
 			f_long += clampf(stop_force, -brake * brake_force * 0.25, brake * brake_force * 0.25)
-		f_long -= v_long * 25.0 # rolling resistance
+		f_long -= v_long * 6.0 # rolling resistance
 
 		var combined := Vector2(f_lat, f_long)
 		if combined.length() > max_force and max_force > 0.0:

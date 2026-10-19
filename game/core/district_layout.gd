@@ -138,6 +138,17 @@ func loop_points(loop_name: String) -> PackedVector3Array:
 	return points
 
 
+## The same loop, but starting halfway along its first road so a race grid
+## can sit on a straight rather than at a junction.
+func loop_points_from_mid(loop_name: String) -> PackedVector3Array:
+	var corners := loop_points(loop_name)
+	var points := PackedVector3Array([(corners[0] + corners[1]) * 0.5])
+	for i in range(1, corners.size()):
+		points.append(corners[i])
+	points.append(corners[0])
+	return points
+
+
 ## True when every consecutive pair in the loop (including the wrap) is a road.
 func loop_is_valid(loop_name: String) -> bool:
 	var ids: PackedInt64Array = loops[loop_name]
