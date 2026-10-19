@@ -11,8 +11,12 @@ var store := SaveStore.new(SAVE_PATH)
 var data: Dictionary = {}
 
 
-func _ready() -> void:
+func _init() -> void:
+	# Loaded at construction so every other system can read state immediately.
 	load_or_create()
+
+
+func _ready() -> void:
 	_discard_unfinished_rewards()
 
 

@@ -188,8 +188,8 @@ func _add_sign(pos: Vector3, n: Vector3, text: String, width: float) -> void:
 	label.pixel_size = clampf(width / (text.length() * 40.0), 0.004, 0.012)
 	label.modulate = AWNINGS[rng.randi() % AWNINGS.size()].darkened(0.3)
 	label.outline_size = 0
-	label.position = pos
-	label.look_at_from_position(pos, pos - n, Vector3.UP)
+	# Label3D text faces +Z, so point +Z out towards the road.
+	label.transform = Transform3D(Basis.looking_at(-n, Vector3.UP), pos)
 	label.double_sided = false
 	label.visibility_range_end = 140.0
 	add_child(label)

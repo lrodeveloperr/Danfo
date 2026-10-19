@@ -1,0 +1,42 @@
+name: Game tests
+
+on:
+  push:
+    paths: ["game/**", ".github/workflows/game-tests.yml"]
+  pull_request:
+    paths: ["game/**", ".github/workflows/game-tests.yml"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GODOT_VERSION: 4.7.2-stable
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Godot
+        uses: actions/cache@v4
+        with:
+          path: ~/godot
+          key: godot-${{ env.GODOT_VERSION }}
+
+      - name: Download Godot
+        run: |
+          if [ ! -x ~/godot/godot ]; then
+            mkdir -p ~/godot && cd ~/godot
+            curl -fsSL -o godot.zip "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_linux.x86_64.zip"
+            unzip -q godot.zip
+            mv "Godot_v${GODOT_VERSION}_linux.x86_64" godot
+            rm godot.zip
+          fi
+          ~/godot/godot --version
+
+      - name: Import project
+        run: ~/godot/godot --headless --path game --import
+
+      - name: Unit tests
+        run: ~/godot/godot --headless --path game -s addons/gut/gut_cmdln.gd -gconfig=res://.gutconfig.json
+
+      - name: Smoke tests (full races, a passenger shift, app flow)
+        run: ~/godot/godot --headless --fixed-fps 60 --path game -s addons/gut/gut_cmdln.gd -gdir=res://tests/smoke -gexit

@@ -9,19 +9,19 @@ const PANEL := Color(0.1, 0.1, 0.11, 0.92)
 
 static func screen(parent: Node) -> Control:
 	var root := Control.new()
-	root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var bg := ColorRect.new()
 	bg.color = Color(0.11, 0.1, 0.09)
-	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	root.add_child(bg)
 	# Two stripes echo the danfo livery.
-	for y in [0.82, 0.86]:
+	for y in [0.968, 0.986]:
 		var stripe := ColorRect.new()
-		stripe.color = YELLOW if y < 0.84 else Color(0.2, 0.18, 0.1)
+		stripe.color = YELLOW if y < 0.98 else Color(0.2, 0.18, 0.1)
 		stripe.anchor_left = 0.0
 		stripe.anchor_right = 1.0
 		stripe.anchor_top = y
-		stripe.anchor_bottom = y + 0.02
+		stripe.anchor_bottom = y + 0.01
 		root.add_child(stripe)
 	parent.add_child(root)
 	return root
@@ -29,7 +29,7 @@ static func screen(parent: Node) -> Control:
 
 static func centered_column(parent: Node, separation := 16) -> VBoxContainer:
 	var center := CenterContainer.new()
-	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	parent.add_child(center)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", separation)

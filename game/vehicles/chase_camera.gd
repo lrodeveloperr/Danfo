@@ -36,7 +36,9 @@ func _process(delta: float) -> void:
 	var t := target.get_global_transform_interpolated()
 	var fwd := _flat_forward(t)
 	# Reversing keeps the camera behind the bus's nose direction.
-	_yaw_dir = _yaw_dir.slerp(fwd, 1.0 - exp(-delta * 3.0)).normalized()
+	var blended := _yaw_dir.lerp(fwd, 1.0 - exp(-delta * 3.0))
+	if blended.length() > 0.01:
+		_yaw_dir = blended.normalized()
 	var desired := t.origin - _yaw_dir * distance + Vector3.UP * height
 	var space := get_world_3d().direct_space_state
 	var eye := t.origin + Vector3.UP * 1.6

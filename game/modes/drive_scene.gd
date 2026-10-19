@@ -117,7 +117,7 @@ func open_pause() -> void:
 	add_child(_pause_layer)
 	var shade := ColorRect.new()
 	shade.color = Color(0, 0, 0, 0.6)
-	shade.set_anchors_preset(Control.PRESET_FULL_RECT)
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_pause_layer.add_child(shade)
 	var box := UiKit.centered_column(_pause_layer)
 	UiKit.title(box, "Paused")

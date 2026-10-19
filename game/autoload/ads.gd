@@ -64,14 +64,16 @@ func show_rewarded(txn: String) -> void:
 	box.add_child(skip)
 
 
+## Completion signals are always emitted on a later frame, so callers that
+## show an ad and then await its signal can never miss a fast callback.
 func _finish_interstitial() -> void:
 	_showing = false
-	interstitial_closed.emit()
+	interstitial_closed.emit.call_deferred()
 
 
 func _finish_rewarded(txn: String, earned: bool) -> void:
 	_showing = false
-	rewarded_finished.emit(txn, earned)
+	rewarded_finished.emit.call_deferred(txn, earned)
 
 
 func _headless() -> bool:
@@ -83,11 +85,11 @@ func _card(title: String, body: String) -> CanvasLayer:
 	layer.layer = 100
 	var shade := ColorRect.new()
 	shade.color = Color(0, 0, 0, 0.92)
-	shade.set_anchors_preset(Control.PRESET_FULL_RECT)
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	layer.add_child(shade)
 	var panel := CenterContainer.new()
 	panel.name = "Panel"
-	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	layer.add_child(panel)
 	var box := VBoxContainer.new()
 	box.name = "Box"

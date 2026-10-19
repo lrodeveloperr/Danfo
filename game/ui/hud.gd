@@ -17,7 +17,7 @@ var _toast_time := 0.0
 func _ready() -> void:
 	layer = 10
 	var root := Control.new()
-	root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(root)
 
@@ -40,7 +40,7 @@ func _ready() -> void:
 	root.add_child(arrow)
 
 	controls = Control.new()
-	controls.set_anchors_preset(Control.PRESET_FULL_RECT)
+	controls.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	controls.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(controls)
 	_add_button("steer_left", "◀", Control.PRESET_BOTTOM_LEFT, Vector2(24, -24), Vector2(150, 150))
